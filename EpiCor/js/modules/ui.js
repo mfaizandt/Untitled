@@ -399,15 +399,19 @@ const UI = (() => {
             <table class="parts-table">
                 <thead>
                     <tr>
+                        <th>Actions</th>
                         <th>Image</th>
                         <th>Part Number</th>
                         <th>Part Name</th>
+                        <th>Line Code</th>
+                        <th>Part Type</th>
+                        <th>Position</th>
                         <th>Manufacturer</th>
                         <th>Brand</th>
                         <th>Year Range</th>
                         <th>Qty</th>
                         <th>Condition</th>
-                        <th>Actions</th>
+                        <th>Notes</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -421,6 +425,9 @@ const UI = (() => {
                 // Safely access nested properties with fallbacks
                 const partNumber = part.partNumber || part.partnumber || '-';
                 const partName = part.catalogObject?.catalogObjectName || part.catalogObjectName || part.name || '-';
+                const lineCode = part.lineCode || '-';
+                const partType = part.partType?.partTerminologyName || '-';
+                const position = part.position?.position || '-';
                 const manufacturerName = part.manufacturer?.name || part.manufacturerName || '-';
                 const brandName = part.manufacturer?.brand?.name || part.brandName || part.brand?.name || '-';
                 const fromYear = part.fromYear || part.fromyear || '';
@@ -429,29 +436,48 @@ const UI = (() => {
                 const qty = part.qty || part.quantity || part.qtyRequired || '-';
                 const condition = part.condition || part.partCondition || '-';
                 
+                // Handle notes - show count or first note
+                let notesDisplay = '-';
+                if (part.notes && Array.isArray(part.notes) && part.notes.length > 0) {
+                    const firstNote = part.notes[0];
+                    const notesCount = part.notes.length;
+                    notesDisplay = notesCount > 1 
+                        ? `${Utils.escapeHtml(String(firstNote))} (+${notesCount - 1} more)`
+                        : Utils.escapeHtml(String(firstNote));
+                }
+                const notesTooltip = part.notes && Array.isArray(part.notes) && part.notes.length > 0
+                    ? part.notes.join('; ')
+                    : '';
+                
                 // Extract data needed for part detail API call
                 const manufacturerID = part.manufacturer?.manufacturerID || part.manufacturerID || '';
-                const lineCode = part.lineCode || part.manufacturer?.brand?.lineCode?.[0] || '';
+                const lineCodeForAPI = part.lineCode || part.manufacturer?.brand?.lineCode?.[0] || '';
                 const catalogObjectID = part.catalogObject?.catalogObjectID || part.catalogObjectID || '';
                 
                 // Store part data as data attributes for the button
                 const partDataAttr = JSON.stringify({
                     partNumber: partNumber !== '-' ? partNumber : '',
                     manufacturerID: manufacturerID,
-                    lineCode: lineCode,
+                    lineCode: lineCodeForAPI,
                     catalogObjectID: catalogObjectID !== '-' ? catalogObjectID : ''
                 }).replace(/"/g, '&quot;');
                 
+                // Determine source properties for tooltips
+                const partNumberSource = part.partNumber ? 'partNumber' : (part.partnumber ? 'partnumber' : 'N/A');
+                const partNameSource = part.catalogObject?.catalogObjectName ? 'catalogObject.catalogObjectName' : (part.catalogObjectName ? 'catalogObjectName' : (part.name ? 'name' : 'N/A'));
+                const lineCodeSource = part.lineCode ? 'lineCode' : 'N/A';
+                const partTypeSource = part.partType?.partTerminologyName ? 'partType.partTerminologyName' : 'N/A';
+                const positionSource = part.position?.position ? 'position.position' : 'N/A';
+                const manufacturerSource = part.manufacturer?.name ? 'manufacturer.name' : (part.manufacturerName ? 'manufacturerName' : 'N/A');
+                const brandSource = part.manufacturer?.brand?.name ? 'manufacturer.brand.name' : (part.brandName ? 'brandName' : (part.brand?.name ? 'brand.name' : 'N/A'));
+                const yearRangeSource = part.fromYear && part.toYear ? 'fromYear, toYear' : (part.fromyear && part.toyear ? 'fromyear, toyear' : 'N/A');
+                const qtySource = part.qty ? 'qty' : (part.quantity ? 'quantity' : (part.qtyRequired ? 'qtyRequired' : 'N/A'));
+                const conditionSource = part.condition ? 'condition' : (part.partCondition ? 'partCondition' : 'N/A');
+                const notesSource = part.notes && Array.isArray(part.notes) ? 'notes[]' : 'N/A';
+                const imageSource = part.partContents && Array.isArray(part.partContents) && part.partContents.length > 0 ? 'partContents[0].url' : 'N/A';
+                
                 html += `
                     <tr>
-                        <td>${imageHtml}</td>
-                        <td><span class="part-number">${Utils.escapeHtml(String(partNumber))}</span></td>
-                        <td>${Utils.escapeHtml(String(partName))}</td>
-                        <td><span class="part-manufacturer">${Utils.escapeHtml(String(manufacturerName))}</span></td>
-                        <td>${Utils.escapeHtml(String(brandName))}</td>
-                        <td>${Utils.escapeHtml(yearRange)}</td>
-                        <td>${Utils.escapeHtml(String(qty))}</td>
-                        <td>${Utils.escapeHtml(String(condition))}</td>
                         <td>
                             <button class="btn btn-sm btn-primary view-detail-btn" 
                                     data-part-data="${partDataAttr}"
@@ -459,6 +485,18 @@ const UI = (() => {
                                 View Detail
                             </button>
                         </td>
+                        <td title="Source: ${imageSource}">${imageHtml}</td>
+                        <td title="Source: ${partNumberSource}"><span class="part-number">${Utils.escapeHtml(String(partNumber))}</span></td>
+                        <td title="Source: ${partNameSource}">${Utils.escapeHtml(String(partName))}</td>
+                        <td title="Source: ${lineCodeSource}"><span class="line-code">${Utils.escapeHtml(String(lineCode))}</span></td>
+                        <td title="Source: ${partTypeSource}">${Utils.escapeHtml(String(partType))}</td>
+                        <td title="Source: ${positionSource}">${Utils.escapeHtml(String(position))}</td>
+                        <td title="Source: ${manufacturerSource}"><span class="part-manufacturer">${Utils.escapeHtml(String(manufacturerName))}</span></td>
+                        <td title="Source: ${brandSource}">${Utils.escapeHtml(String(brandName))}</td>
+                        <td title="Source: ${yearRangeSource}">${Utils.escapeHtml(yearRange)}</td>
+                        <td title="Source: ${qtySource}">${Utils.escapeHtml(String(qty))}</td>
+                        <td title="Source: ${conditionSource}">${Utils.escapeHtml(String(condition))}</td>
+                        <td title="Source: ${notesSource}${notesTooltip ? ` | Values: ${Utils.escapeHtml(notesTooltip)}` : ''}" style="max-width: 200px; word-wrap: break-word; font-size: 0.9em;">${notesDisplay}</td>
                     </tr>
                 `;
             } catch (error) {
@@ -894,27 +932,27 @@ const UI = (() => {
             <div class="part-detail-section">
                 <h3>📦 Basic Part Information</h3>
                 <div class="part-detail-grid">
-                    <div class="part-detail-item">
+                    <div class="part-detail-item" title="Source: data[0].partNumber">
                         <span class="part-detail-label">Part Number:</span>
                         <span class="part-detail-value">${Utils.escapeHtml(partData.partNumber || '-')}</span>
                     </div>
-                    <div class="part-detail-item">
+                    <div class="part-detail-item" title="Source: data[0].lineCode">
                         <span class="part-detail-label">Line Code:</span>
                         <span class="part-detail-value">${Utils.escapeHtml(partData.lineCode || '-')}</span>
                     </div>
-                    <div class="part-detail-item">
+                    <div class="part-detail-item" title="Source: data[0].partCondition">
                         <span class="part-detail-label">Part Condition:</span>
                         <span class="part-detail-value">${Utils.escapeHtml(partData.partCondition || '-')}</span>
                     </div>
-                    <div class="part-detail-item">
+                    <div class="part-detail-item" title="Source: data[0].qty">
                         <span class="part-detail-label">Quantity:</span>
                         <span class="part-detail-value">${Utils.escapeHtml(String(partData.qty || '-'))}</span>
                     </div>
-                    <div class="part-detail-item">
+                    <div class="part-detail-item" title="Source: data[0].fromYear, data[0].toYear">
                         <span class="part-detail-label">Year Range:</span>
                         <span class="part-detail-value">${Utils.escapeHtml(partData.fromYear && partData.toYear ? `${partData.fromYear} - ${partData.toYear}` : '-')}</span>
                     </div>
-                    <div class="part-detail-item">
+                    <div class="part-detail-item" title="Source: data[0].prop65Message">
                         <span class="part-detail-label">Prop 65 Message:</span>
                         <span class="part-detail-value">${Utils.escapeHtml(partData.prop65Message || '-')}</span>
                     </div>
@@ -928,34 +966,34 @@ const UI = (() => {
                 <div class="part-detail-section">
                     <h3>🏭 Manufacturer Information</h3>
                     <div class="part-detail-grid">
-                        <div class="part-detail-item">
+                        <div class="part-detail-item" title="Source: data[0].manufacturer.manufacturerID">
                             <span class="part-detail-label">Manufacturer ID:</span>
                             <span class="part-detail-value">${Utils.escapeHtml(String(partData.manufacturer.manufacturerID || '-'))}</span>
                         </div>
-                        <div class="part-detail-item">
+                        <div class="part-detail-item" title="Source: data[0].manufacturer.manufacturerName">
                             <span class="part-detail-label">Manufacturer Name:</span>
                             <span class="part-detail-value">${Utils.escapeHtml(partData.manufacturer.manufacturerName || '-')}</span>
                         </div>
                         ${partData.manufacturer.city ? `
-                        <div class="part-detail-item">
+                        <div class="part-detail-item" title="Source: data[0].manufacturer.city">
                             <span class="part-detail-label">City:</span>
                             <span class="part-detail-value">${Utils.escapeHtml(partData.manufacturer.city)}</span>
                         </div>
                         ` : ''}
                         ${partData.manufacturer.state ? `
-                        <div class="part-detail-item">
+                        <div class="part-detail-item" title="Source: data[0].manufacturer.state">
                             <span class="part-detail-label">State:</span>
                             <span class="part-detail-value">${Utils.escapeHtml(partData.manufacturer.state)}</span>
                         </div>
                         ` : ''}
                         ${partData.manufacturer.webAddress ? `
-                        <div class="part-detail-item">
+                        <div class="part-detail-item" title="Source: data[0].manufacturer.webAddress">
                             <span class="part-detail-label">Web Address:</span>
                             <span class="part-detail-value"><a href="${Utils.escapeHtml(partData.manufacturer.webAddress)}" target="_blank">${Utils.escapeHtml(partData.manufacturer.webAddress)}</a></span>
                         </div>
                         ` : ''}
                         ${partData.manufacturer.phoneNumber ? `
-                        <div class="part-detail-item">
+                        <div class="part-detail-item" title="Source: data[0].manufacturer.phoneNumber">
                             <span class="part-detail-label">Phone:</span>
                             <span class="part-detail-value">${Utils.escapeHtml(partData.manufacturer.phoneNumber)}</span>
                         </div>
@@ -971,9 +1009,9 @@ const UI = (() => {
                         <h3>🏷️ Brands</h3>
                         <ul class="part-detail-list">
                 `;
-                partData.manufacturer.brands.forEach(brand => {
+                partData.manufacturer.brands.forEach((brand, idx) => {
                     html += `
-                        <li>
+                        <li title="Source: data[0].manufacturer.brands[${idx}].brandName, brands[${idx}].lineCode[], brands[${idx}].regions[]">
                             <strong>${Utils.escapeHtml(brand.brandName || '-')}</strong>
                             ${brand.lineCode && brand.lineCode.length > 0 ? ` (Line Codes: ${brand.lineCode.join(', ')})` : ''}
                             ${brand.regions && brand.regions.length > 0 ? ` - Regions: ${brand.regions.map(r => r.regionName).join(', ')}` : ''}
@@ -990,28 +1028,28 @@ const UI = (() => {
                 <div class="part-detail-section">
                     <h3>📝 Product Description</h3>
                     ${partData.productDescription.shortDescription ? `
-                        <div class="part-detail-item" style="margin-bottom: 10px;">
+                        <div class="part-detail-item" style="margin-bottom: 10px;" title="Source: data[0].productDescription.shortDescription">
                             <span class="part-detail-label">Short Description:</span>
                             <span class="part-detail-value">${Utils.escapeHtml(partData.productDescription.shortDescription)}</span>
                         </div>
                     ` : ''}
                     ${partData.productDescription.longDescription ? `
-                        <div class="part-detail-item" style="margin-bottom: 10px;">
+                        <div class="part-detail-item" style="margin-bottom: 10px;" title="Source: data[0].productDescription.longDescription">
                             <span class="part-detail-label">Long Description:</span>
                             <span class="part-detail-value">${Utils.escapeHtml(partData.productDescription.longDescription)}</span>
                         </div>
                     ` : ''}
                     ${partData.productDescription.description ? `
-                        <div class="part-detail-item" style="margin-bottom: 10px;">
+                        <div class="part-detail-item" style="margin-bottom: 10px;" title="Source: data[0].productDescription.description">
                             <span class="part-detail-label">Description:</span>
                             <span class="part-detail-value">${Utils.escapeHtml(partData.productDescription.description)}</span>
                         </div>
                     ` : ''}
                     ${partData.productDescription.bullets && partData.productDescription.bullets.length > 0 ? `
-                        <div class="part-detail-item">
+                        <div class="part-detail-item" title="Source: data[0].productDescription.bullets[]">
                             <span class="part-detail-label">Bullet Points:</span>
                             <ul class="part-detail-list">
-                                ${partData.productDescription.bullets.map(bullet => `<li>${Utils.escapeHtml(bullet)}</li>`).join('')}
+                                ${partData.productDescription.bullets.map((bullet, idx) => `<li title="Source: data[0].productDescription.bullets[${idx}]">${Utils.escapeHtml(bullet)}</li>`).join('')}
                             </ul>
                         </div>
                     ` : ''}
@@ -1025,7 +1063,7 @@ const UI = (() => {
                 <div class="part-detail-section">
                     <h3>🔧 Part Types</h3>
                     <ul class="part-detail-list">
-                        ${partData.partTypes.map(pt => `<li>${Utils.escapeHtml(pt.partTerminologyName || '-')}</li>`).join('')}
+                        ${partData.partTypes.map((pt, idx) => `<li title="Source: data[0].partTypes[${idx}].partTerminologyName">${Utils.escapeHtml(pt.partTerminologyName || '-')}</li>`).join('')}
                     </ul>
                 </div>
             `;
@@ -1037,8 +1075,8 @@ const UI = (() => {
                 <div class="part-detail-section">
                     <h3>📋 Part Attributes</h3>
                     <div class="part-detail-grid">
-                        ${partData.partAttributes.map(attr => `
-                            <div class="part-detail-item">
+                        ${partData.partAttributes.map((attr, idx) => `
+                            <div class="part-detail-item" title="Source: data[0].partAttributes[${idx}].attributeName, partAttributes[${idx}].attributeValue">
                                 <span class="part-detail-label">${Utils.escapeHtml(attr.attributeName || '-')}:</span>
                                 <span class="part-detail-value">${Utils.escapeHtml(attr.attributeValue || '-')}</span>
                             </div>
@@ -1054,8 +1092,8 @@ const UI = (() => {
                 <div class="part-detail-section">
                     <h3>🔗 OEM Part Numbers</h3>
                     <ul class="part-detail-list">
-                        ${partData.partOEMs.map(oem => `
-                            <li>
+                        ${partData.partOEMs.map((oem, idx) => `
+                            <li title="Source: data[0].partOEMs[${idx}].oemName, partOEMs[${idx}].oemPartNumbers[]">
                                 <strong>${Utils.escapeHtml(oem.oemName || '-')}:</strong>
                                 ${oem.oemPartNumbers && oem.oemPartNumbers.length > 0 ? oem.oemPartNumbers.map(num => Utils.escapeHtml(num)).join(', ') : '-'}
                             </li>
@@ -1071,7 +1109,7 @@ const UI = (() => {
                 <div class="part-detail-section">
                     <h3>📌 Notes</h3>
                     <ul class="part-detail-list">
-                        ${partData.notes.map(note => `<li>${Utils.escapeHtml(note.description || '-')}</li>`).join('')}
+                        ${partData.notes.map((note, idx) => `<li title="Source: data[0].notes[${idx}].description">${Utils.escapeHtml(note.description || '-')}</li>`).join('')}
                     </ul>
                 </div>
             `;
@@ -1083,8 +1121,8 @@ const UI = (() => {
                 <div class="part-detail-section">
                     <h3>🖼️ Part Images</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
-                        ${partData.partContents.map(content => `
-                            <div style="text-align: center;">
+                        ${partData.partContents.map((content, idx) => `
+                            <div style="text-align: center;" title="Source: data[0].partContents[${idx}].url, partContents[${idx}].description, partContents[${idx}].contentType">
                                 ${content.url ? `<img src="${Utils.escapeHtml(content.url)}" alt="${Utils.escapeHtml(content.description || 'Part image')}" style="max-width: 100%; border-radius: 5px; margin-bottom: 5px;" onerror="this.style.display='none'" />` : ''}
                                 ${content.description ? `<p style="font-size: 0.85em; color: #6c757d;">${Utils.escapeHtml(content.description)}</p>` : ''}
                                 ${content.contentType ? `<p style="font-size: 0.75em; color: #999;">${Utils.escapeHtml(content.contentType.partContentTypeDescription || '')}</p>` : ''}
@@ -1100,7 +1138,7 @@ const UI = (() => {
             html += `
                 <div class="part-detail-section">
                     <h3>📍 Position</h3>
-                    <div class="part-detail-item">
+                    <div class="part-detail-item" title="Source: data[0].position.position">
                         <span class="part-detail-value">${Utils.escapeHtml(partData.position.position || '-')}</span>
                     </div>
                 </div>
