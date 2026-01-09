@@ -156,6 +156,28 @@
                 </div>
             </div>
             
+            <!-- Part Detail Modal -->
+            <div id="partDetailModal" class="modal hidden">
+                <div class="modal-content" style="max-width: 90%; max-height: 90vh; overflow-y: auto;">
+                    <div class="modal-header">
+                        <h2>📦 Part Details</h2>
+                        <button class="modal-close" id="closePartDetailModal">&times;</button>
+                    </div>
+                    <div class="modal-body" id="partDetailContent">
+                        <div style="text-align: center; padding: 20px;">
+                            <div class="spinner"></div>
+                            <p>Loading part details...</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" id="downloadPartDetailBtn" style="display: none;">
+                            📥 Download JSON
+                        </button>
+                        <button class="btn btn-primary" id="closePartDetailModalBtn">Close</button>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Parts Display Area -->
             <div id="partsView" class="auth-form hidden">
                 <div class="breadcrumb" id="partsBreadcrumb">

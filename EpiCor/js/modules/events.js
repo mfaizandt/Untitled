@@ -1,6 +1,109 @@
 // events.js - Event handlers and user interactions
 const Events = (() => {
+    // Part Detail Modal handlers
+    const setupPartDetailHandlers = () => {
+        // Close modal buttons
+        const closeModalBtn = document.getElementById('closePartDetailModal');
+        const closeModalBtn2 = document.getElementById('closePartDetailModalBtn');
+        const modal = document.getElementById('partDetailModal');
+        
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', () => {
+                UI.hidePartDetailModal();
+            });
+        }
+        
+        if (closeModalBtn2) {
+            closeModalBtn2.addEventListener('click', () => {
+                UI.hidePartDetailModal();
+            });
+        }
+        
+        // Close modal when clicking outside
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    UI.hidePartDetailModal();
+                }
+            });
+        }
+        
+        // Download part details button
+        const downloadBtn = document.getElementById('downloadPartDetailBtn');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', () => {
+                Utils.downloadPartDetails();
+            });
+        }
+        
+        // View Detail button handlers (delegated event handling)
+        document.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('view-detail-btn') && !e.target.disabled) {
+                const partDataStr = e.target.getAttribute('data-part-data');
+                if (!partDataStr) return;
+                
+                try {
+                    const partData = JSON.parse(partDataStr.replace(/&quot;/g, '"'));
+                    
+                    if (!partData.partNumber) {
+                        Utils.showStatus('⚠️ Part number is required', 'warning');
+                        return;
+                    }
+                    
+                    // Show modal with loading state
+                    UI.showPartDetailModal();
+                    const contentEl = document.getElementById('partDetailContent');
+                    if (contentEl) {
+                        contentEl.innerHTML = `
+                            <div style="text-align: center; padding: 20px;">
+                                <div class="spinner"></div>
+                                <p>Loading part details...</p>
+                            </div>
+                        `;
+                    }
+                    
+                    // Hide download button while loading
+                    const downloadBtn = document.getElementById('downloadPartDetailBtn');
+                    if (downloadBtn) {
+                        downloadBtn.style.display = 'none';
+                    }
+                    
+                    Utils.showStatus('🔄 Fetching part details...', 'warning');
+                    
+                    // Fetch part details
+                    const partDetailsResponse = await API.fetchPartDetails(
+                        partData.partNumber,
+                        partData.manufacturerID,
+                        partData.lineCode,
+                        partData.catalogObjectID
+                    );
+                    
+                    // Render part details
+                    UI.renderPartDetails(partDetailsResponse);
+                    
+                    Utils.showStatus('✓ Part details loaded successfully', 'success');
+                    
+                } catch (error) {
+                    console.error('Error fetching part details:', error);
+                    const contentEl = document.getElementById('partDetailContent');
+                    if (contentEl) {
+                        contentEl.innerHTML = `
+                            <div style="text-align: center; padding: 20px; color: #dc3545;">
+                                <p><strong>Error loading part details</strong></p>
+                                <p>${Utils.escapeHtml(error.message || 'Unknown error occurred')}</p>
+                            </div>
+                        `;
+                    }
+                    Utils.showStatus('✗ Failed to load part details: ' + (error.message || 'Unknown error'), 'error');
+                }
+            }
+        });
+    };
+    
     const setupEventHandlers = () => {
+        // Setup part detail handlers first
+        setupPartDetailHandlers();
+        
         // Logout button
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {

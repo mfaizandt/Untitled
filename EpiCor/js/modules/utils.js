@@ -114,6 +114,16 @@ const Utils = (() => {
         }
     };
     
+    const downloadPartDetails = () => {
+        const apiResponses = AppState.getAPIResponses();
+        if (apiResponses.partDetails) {
+            const timestamp = formatTimestamp();
+            downloadJSON(apiResponses.partDetails, `part-details-${timestamp}.json`);
+        } else {
+            showStatus('⚠️ No part details available to download', 'warning');
+        }
+    };
+    
     return {
         escapeHtml,
         showStatus,
@@ -125,7 +135,8 @@ const Utils = (() => {
         downloadVinResponse,
         downloadCategoryTree,
         downloadManufacturers,
-        downloadParts
+        downloadParts,
+        downloadPartDetails
     };
 })();
 

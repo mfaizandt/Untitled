@@ -407,6 +407,7 @@ const UI = (() => {
                         <th>Year Range</th>
                         <th>Qty</th>
                         <th>Condition</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -428,6 +429,19 @@ const UI = (() => {
                 const qty = part.qty || part.quantity || part.qtyRequired || '-';
                 const condition = part.condition || part.partCondition || '-';
                 
+                // Extract data needed for part detail API call
+                const manufacturerID = part.manufacturer?.manufacturerID || part.manufacturerID || '';
+                const lineCode = part.lineCode || part.manufacturer?.brand?.lineCode?.[0] || '';
+                const catalogObjectID = part.catalogObject?.catalogObjectID || part.catalogObjectID || '';
+                
+                // Store part data as data attributes for the button
+                const partDataAttr = JSON.stringify({
+                    partNumber: partNumber !== '-' ? partNumber : '',
+                    manufacturerID: manufacturerID,
+                    lineCode: lineCode,
+                    catalogObjectID: catalogObjectID !== '-' ? catalogObjectID : ''
+                }).replace(/"/g, '&quot;');
+                
                 html += `
                     <tr>
                         <td>${imageHtml}</td>
@@ -438,6 +452,13 @@ const UI = (() => {
                         <td>${Utils.escapeHtml(yearRange)}</td>
                         <td>${Utils.escapeHtml(String(qty))}</td>
                         <td>${Utils.escapeHtml(String(condition))}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary view-detail-btn" 
+                                    data-part-data="${partDataAttr}"
+                                    ${partNumber === '-' ? 'disabled title="Part number required"' : ''}>
+                                View Detail
+                            </button>
+                        </td>
                     </tr>
                 `;
             } catch (error) {
@@ -841,6 +862,260 @@ const UI = (() => {
         }
     };
     
+    const showPartDetailModal = () => {
+        const modal = document.getElementById('partDetailModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
+    };
+    
+    const hidePartDetailModal = () => {
+        const modal = document.getElementById('partDetailModal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    };
+    
+    const renderPartDetails = (partDetailsResponse) => {
+        const contentEl = document.getElementById('partDetailContent');
+        if (!contentEl) return;
+        
+        if (!partDetailsResponse || !partDetailsResponse.data || partDetailsResponse.data.length === 0) {
+            contentEl.innerHTML = '<p style="text-align: center; padding: 20px; color: #dc3545;">No part details found.</p>';
+            return;
+        }
+        
+        const partData = partDetailsResponse.data[0]; // Get first part detail
+        
+        let html = '';
+        
+        // Basic Part Information
+        html += `
+            <div class="part-detail-section">
+                <h3>📦 Basic Part Information</h3>
+                <div class="part-detail-grid">
+                    <div class="part-detail-item">
+                        <span class="part-detail-label">Part Number:</span>
+                        <span class="part-detail-value">${Utils.escapeHtml(partData.partNumber || '-')}</span>
+                    </div>
+                    <div class="part-detail-item">
+                        <span class="part-detail-label">Line Code:</span>
+                        <span class="part-detail-value">${Utils.escapeHtml(partData.lineCode || '-')}</span>
+                    </div>
+                    <div class="part-detail-item">
+                        <span class="part-detail-label">Part Condition:</span>
+                        <span class="part-detail-value">${Utils.escapeHtml(partData.partCondition || '-')}</span>
+                    </div>
+                    <div class="part-detail-item">
+                        <span class="part-detail-label">Quantity:</span>
+                        <span class="part-detail-value">${Utils.escapeHtml(String(partData.qty || '-'))}</span>
+                    </div>
+                    <div class="part-detail-item">
+                        <span class="part-detail-label">Year Range:</span>
+                        <span class="part-detail-value">${Utils.escapeHtml(partData.fromYear && partData.toYear ? `${partData.fromYear} - ${partData.toYear}` : '-')}</span>
+                    </div>
+                    <div class="part-detail-item">
+                        <span class="part-detail-label">Prop 65 Message:</span>
+                        <span class="part-detail-value">${Utils.escapeHtml(partData.prop65Message || '-')}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Manufacturer Information
+        if (partData.manufacturer) {
+            html += `
+                <div class="part-detail-section">
+                    <h3>🏭 Manufacturer Information</h3>
+                    <div class="part-detail-grid">
+                        <div class="part-detail-item">
+                            <span class="part-detail-label">Manufacturer ID:</span>
+                            <span class="part-detail-value">${Utils.escapeHtml(String(partData.manufacturer.manufacturerID || '-'))}</span>
+                        </div>
+                        <div class="part-detail-item">
+                            <span class="part-detail-label">Manufacturer Name:</span>
+                            <span class="part-detail-value">${Utils.escapeHtml(partData.manufacturer.manufacturerName || '-')}</span>
+                        </div>
+                        ${partData.manufacturer.city ? `
+                        <div class="part-detail-item">
+                            <span class="part-detail-label">City:</span>
+                            <span class="part-detail-value">${Utils.escapeHtml(partData.manufacturer.city)}</span>
+                        </div>
+                        ` : ''}
+                        ${partData.manufacturer.state ? `
+                        <div class="part-detail-item">
+                            <span class="part-detail-label">State:</span>
+                            <span class="part-detail-value">${Utils.escapeHtml(partData.manufacturer.state)}</span>
+                        </div>
+                        ` : ''}
+                        ${partData.manufacturer.webAddress ? `
+                        <div class="part-detail-item">
+                            <span class="part-detail-label">Web Address:</span>
+                            <span class="part-detail-value"><a href="${Utils.escapeHtml(partData.manufacturer.webAddress)}" target="_blank">${Utils.escapeHtml(partData.manufacturer.webAddress)}</a></span>
+                        </div>
+                        ` : ''}
+                        ${partData.manufacturer.phoneNumber ? `
+                        <div class="part-detail-item">
+                            <span class="part-detail-label">Phone:</span>
+                            <span class="part-detail-value">${Utils.escapeHtml(partData.manufacturer.phoneNumber)}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            // Brands
+            if (partData.manufacturer.brands && partData.manufacturer.brands.length > 0) {
+                html += `
+                    <div class="part-detail-section">
+                        <h3>🏷️ Brands</h3>
+                        <ul class="part-detail-list">
+                `;
+                partData.manufacturer.brands.forEach(brand => {
+                    html += `
+                        <li>
+                            <strong>${Utils.escapeHtml(brand.brandName || '-')}</strong>
+                            ${brand.lineCode && brand.lineCode.length > 0 ? ` (Line Codes: ${brand.lineCode.join(', ')})` : ''}
+                            ${brand.regions && brand.regions.length > 0 ? ` - Regions: ${brand.regions.map(r => r.regionName).join(', ')}` : ''}
+                        </li>
+                    `;
+                });
+                html += `</ul></div>`;
+            }
+        }
+        
+        // Product Description
+        if (partData.productDescription) {
+            html += `
+                <div class="part-detail-section">
+                    <h3>📝 Product Description</h3>
+                    ${partData.productDescription.shortDescription ? `
+                        <div class="part-detail-item" style="margin-bottom: 10px;">
+                            <span class="part-detail-label">Short Description:</span>
+                            <span class="part-detail-value">${Utils.escapeHtml(partData.productDescription.shortDescription)}</span>
+                        </div>
+                    ` : ''}
+                    ${partData.productDescription.longDescription ? `
+                        <div class="part-detail-item" style="margin-bottom: 10px;">
+                            <span class="part-detail-label">Long Description:</span>
+                            <span class="part-detail-value">${Utils.escapeHtml(partData.productDescription.longDescription)}</span>
+                        </div>
+                    ` : ''}
+                    ${partData.productDescription.description ? `
+                        <div class="part-detail-item" style="margin-bottom: 10px;">
+                            <span class="part-detail-label">Description:</span>
+                            <span class="part-detail-value">${Utils.escapeHtml(partData.productDescription.description)}</span>
+                        </div>
+                    ` : ''}
+                    ${partData.productDescription.bullets && partData.productDescription.bullets.length > 0 ? `
+                        <div class="part-detail-item">
+                            <span class="part-detail-label">Bullet Points:</span>
+                            <ul class="part-detail-list">
+                                ${partData.productDescription.bullets.map(bullet => `<li>${Utils.escapeHtml(bullet)}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        // Part Types
+        if (partData.partTypes && partData.partTypes.length > 0) {
+            html += `
+                <div class="part-detail-section">
+                    <h3>🔧 Part Types</h3>
+                    <ul class="part-detail-list">
+                        ${partData.partTypes.map(pt => `<li>${Utils.escapeHtml(pt.partTerminologyName || '-')}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        // Part Attributes
+        if (partData.partAttributes && partData.partAttributes.length > 0) {
+            html += `
+                <div class="part-detail-section">
+                    <h3>📋 Part Attributes</h3>
+                    <div class="part-detail-grid">
+                        ${partData.partAttributes.map(attr => `
+                            <div class="part-detail-item">
+                                <span class="part-detail-label">${Utils.escapeHtml(attr.attributeName || '-')}:</span>
+                                <span class="part-detail-value">${Utils.escapeHtml(attr.attributeValue || '-')}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // OEM Part Numbers
+        if (partData.partOEMs && partData.partOEMs.length > 0) {
+            html += `
+                <div class="part-detail-section">
+                    <h3>🔗 OEM Part Numbers</h3>
+                    <ul class="part-detail-list">
+                        ${partData.partOEMs.map(oem => `
+                            <li>
+                                <strong>${Utils.escapeHtml(oem.oemName || '-')}:</strong>
+                                ${oem.oemPartNumbers && oem.oemPartNumbers.length > 0 ? oem.oemPartNumbers.map(num => Utils.escapeHtml(num)).join(', ') : '-'}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        // Notes
+        if (partData.notes && partData.notes.length > 0) {
+            html += `
+                <div class="part-detail-section">
+                    <h3>📌 Notes</h3>
+                    <ul class="part-detail-list">
+                        ${partData.notes.map(note => `<li>${Utils.escapeHtml(note.description || '-')}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        // Part Contents (Images)
+        if (partData.partContents && partData.partContents.length > 0) {
+            html += `
+                <div class="part-detail-section">
+                    <h3>🖼️ Part Images</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                        ${partData.partContents.map(content => `
+                            <div style="text-align: center;">
+                                ${content.url ? `<img src="${Utils.escapeHtml(content.url)}" alt="${Utils.escapeHtml(content.description || 'Part image')}" style="max-width: 100%; border-radius: 5px; margin-bottom: 5px;" onerror="this.style.display='none'" />` : ''}
+                                ${content.description ? `<p style="font-size: 0.85em; color: #6c757d;">${Utils.escapeHtml(content.description)}</p>` : ''}
+                                ${content.contentType ? `<p style="font-size: 0.75em; color: #999;">${Utils.escapeHtml(content.contentType.partContentTypeDescription || '')}</p>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Position
+        if (partData.position) {
+            html += `
+                <div class="part-detail-section">
+                    <h3>📍 Position</h3>
+                    <div class="part-detail-item">
+                        <span class="part-detail-value">${Utils.escapeHtml(partData.position.position || '-')}</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        contentEl.innerHTML = html;
+        
+        // Show download button
+        const downloadBtn = document.getElementById('downloadPartDetailBtn');
+        if (downloadBtn) {
+            downloadBtn.style.display = 'block';
+        }
+    };
+    
     return {
         showLoginForm,
         showVinForm,
@@ -852,6 +1127,9 @@ const UI = (() => {
         selectAllBrands,
         deselectAllBrands,
         renderParts,
-        updateProgressSummary
+        updateProgressSummary,
+        showPartDetailModal,
+        hidePartDetailModal,
+        renderPartDetails
     };
 })();

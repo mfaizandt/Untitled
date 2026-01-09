@@ -440,12 +440,96 @@ const API = (() => {
         Utils.showStatus('✓ Logged out successfully', 'success');
     };
     
+    const fetchPartDetails = async (partNumber, manufacturerID, lineCode, catalogObjectID) => {
+        try {
+            const baseURL = AppState.getAPIBaseURL();
+            const token = AppState.getToken();
+            const vehicleConfig = AppState.getVehicleConfig();
+            
+            if (!token) {
+                throw new Error('Not authenticated. Please login first.');
+            }
+            
+            if (!partNumber) {
+                throw new Error('Part number is required');
+            }
+            
+            // Build query parameters
+            const params = new URLSearchParams();
+            params.append('partNumber', partNumber);
+            if (manufacturerID) params.append('manufacturerID', manufacturerID);
+            if (lineCode) params.append('lineCode', lineCode);
+            if (catalogObjectID) params.append('catalogObjectID', catalogObjectID);
+            
+            // Build headers
+            const headers = {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'x-application-key': ''
+            };
+            
+            // Add X-Vehicle-Configuration header if available
+            if (vehicleConfig) {
+                try {
+                    headers['X-Vehicle-Configuration'] = JSON.stringify({
+                        vcdb: {
+                            vehicle: {
+                                baseVehicle: {
+                                    baseVehicleID: vehicleConfig.baseVehicleID || vehicleConfig.baseVehicle?.baseVehicleID
+                                }
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.warn('Could not set X-Vehicle-Configuration header:', e);
+                }
+            }
+            
+            // Add X-CCL-ID if we have selected brands
+            const selectedBrands = AppState.getSelectedBrands();
+            if (selectedBrands.size > 0) {
+                // Use first selected brand's CCL if available
+                // For now, we'll skip this as it requires CCL ID which we don't have
+            }
+            
+            const url = `${baseURL}/api/parts/detail?${params.toString()}`;
+            console.log('Fetching part details from:', url);
+            console.log('Headers:', { ...headers, Authorization: 'Bearer ***' });
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: headers
+            });
+            
+            if (response.status === 401) {
+                AppState.clearSession();
+                UI.showLoginForm();
+                throw new Error('Session expired. Please login again.');
+            }
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Part details fetch failed: ${response.status} ${response.statusText}. ${errorText}`);
+            }
+            
+            const partDetailsResponse = await response.json();
+            AppState.setAPIResponse('partDetails', partDetailsResponse);
+            
+            return partDetailsResponse;
+            
+        } catch (error) {
+            console.error('Part details error:', error);
+            throw error;
+        }
+    };
+    
     return {
         loginUser,
         decodeVin,
         fetchCategoryTree,
         fetchManufacturers,
         fetchParts,
-        logout
+        logout,
+        fetchPartDetails
     };
 })();
