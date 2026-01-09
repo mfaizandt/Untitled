@@ -513,6 +513,178 @@
             color: #764ba2;
             font-weight: 500;
         }
+        
+        /* Navigation Styles */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .breadcrumb-item.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .breadcrumb-separator {
+            color: #adb5bd;
+        }
+        
+        .breadcrumb-link {
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .breadcrumb-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+        
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .nav-title {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .nav-title h2 {
+            margin: 0;
+        }
+        
+        .nav-title .subtitle {
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: normal;
+        }
+        
+        /* Progress Summary Styles */
+        .progress-summary {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: white;
+            border-bottom: 2px solid #e9ecef;
+            padding: 15px 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .progress-summary.hidden {
+            display: none;
+        }
+        
+        .progress-summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .progress-summary-header h3 {
+            margin: 0;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        
+        .progress-sections {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .progress-section {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .progress-section-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .progress-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 13px;
+        }
+        
+        .progress-label {
+            font-weight: 600;
+            color: #6c757d;
+            margin-right: 10px;
+        }
+        
+        .progress-value {
+            color: #333;
+            text-align: right;
+            flex: 1;
+        }
+        
+        .download-btn {
+            padding: 4px 10px;
+            font-size: 11px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        
+        .download-btn:hover {
+            background: #218838;
+        }
+        
+        .download-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        @media (max-width: 768px) {
+            .progress-sections {
+                flex-direction: column;
+            }
+            
+            .progress-summary {
+                padding: 10px 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -520,6 +692,42 @@
         <div class="header">
             <h1>🚗 Vehicle Parts Catalog</h1>
             <p>Browse and search through our comprehensive parts database</p>
+        </div>
+        
+        <!-- Progress Summary Section -->
+        <div id="progressSummary" class="progress-summary hidden">
+            <div class="progress-summary-header">
+                <h3>📊 Progress Summary</h3>
+            </div>
+            <div class="progress-sections">
+                <!-- Vehicle Information Section -->
+                <div id="vehicleInfoSection" class="progress-section hidden">
+                    <div class="progress-section-title">🚗 Vehicle Information</div>
+                    <div id="vehicleInfoContent"></div>
+                    <button class="download-btn" id="downloadVinBtn" onclick="downloadVinResponse()">📥 Download VIN Response</button>
+                </div>
+                
+                <!-- Catalog Selection Section -->
+                <div id="catalogSelectionSection" class="progress-section hidden">
+                    <div class="progress-section-title">📋 Catalog Selection</div>
+                    <div id="catalogSelectionContent"></div>
+                    <button class="download-btn" id="downloadCategoryTreeBtn" onclick="downloadCategoryTree()">📥 Download Category Tree</button>
+                </div>
+                
+                <!-- Manufacturer Selection Section -->
+                <div id="manufacturerSelectionSection" class="progress-section hidden">
+                    <div class="progress-section-title">🏭 Manufacturer Selection</div>
+                    <div id="manufacturerSelectionContent"></div>
+                    <button class="download-btn" id="downloadManufacturersBtn" onclick="downloadManufacturers()">📥 Download Manufacturers</button>
+                </div>
+                
+                <!-- Parts Section -->
+                <div id="partsSection" class="progress-section hidden">
+                    <div class="progress-section-title">🔧 Parts</div>
+                    <div id="partsContent"></div>
+                    <button class="download-btn" id="downloadPartsBtn" onclick="downloadParts()">📥 Download Parts</button>
+                </div>
+            </div>
         </div>
         
         <div class="controls">
@@ -570,7 +778,26 @@
             
             <!-- Manufacturer Selection Form -->
             <div id="manufacturerSelection" class="auth-form hidden">
-                <h2>🏭 Select Manufacturers</h2>
+                <div class="breadcrumb" id="manufacturerBreadcrumb">
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbVinFromManufacturers">VIN</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbTree">Catalog Tree</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item active">
+                        <span id="breadcrumbCatalogName">Select Manufacturers</span>
+                    </span>
+                </div>
+                <div class="nav-header">
+                    <div class="nav-title">
+                        <h2>🏭 Select Manufacturers</h2>
+                        <span class="subtitle" id="manufacturerSubtitle">Select manufacturers and brands for the catalog object</span>
+                    </div>
+                    <button class="btn btn-secondary" id="backToTreeBtn">← Back to Catalog</button>
+                </div>
                 <div id="manufacturerLoading" class="upload-loader" style="display: none;">
                     <div class="loader-content">
                         <div class="upload-spinner"></div>
@@ -591,26 +818,74 @@
                     </div>
                     <div id="manufacturerList" style="max-height: 500px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 5px; padding: 15px;"></div>
                     <div class="form-actions" style="margin-top: 20px;">
-                        <button class="btn btn-secondary" id="backToTreeBtn">Back to Catalog</button>
-                        <button class="btn btn-primary" id="viewPartsBtn">View Parts</button>
+                        <button class="btn btn-primary" id="viewPartsBtn">View Parts →</button>
                     </div>
                 </div>
             </div>
             
             <!-- Parts Display Area -->
             <div id="partsView" class="auth-form hidden">
-                <h2>🔧 Parts List</h2>
+                <div class="breadcrumb" id="partsBreadcrumb">
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbVinFromParts">VIN</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbTreeFromParts">Catalog Tree</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbManufacturers">Manufacturers</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item active">
+                        <span id="breadcrumbPartsName">Parts List</span>
+                    </span>
+                </div>
+                <div class="nav-header">
+                    <div class="nav-title">
+                        <h2>🔧 Parts List</h2>
+                        <span class="subtitle" id="partsSubtitle">Parts for selected manufacturers</span>
+                    </div>
+                    <button class="btn btn-secondary" id="backToManufacturersBtn">← Back to Manufacturers</button>
+                </div>
                 <div id="partsLoading" class="upload-loader" style="display: none;">
                     <div class="loader-content">
                         <div class="upload-spinner"></div>
                         <div class="upload-info">Loading parts...</div>
                     </div>
                 </div>
-                <div id="partsContent" style="display: none;">
-                    <div style="margin-bottom: 15px;">
-                        <button class="btn btn-secondary" id="backToManufacturersBtn">Back to Manufacturers</button>
-                    </div>
+                <div id="partsContent">
                     <div id="partsList" style="max-height: 600px; overflow-y: auto;"></div>
+                </div>
+            </div>
+            
+            <!-- Catalog Tree View -->
+            <div id="treeView" class="hidden">
+                <div class="breadcrumb" id="treeBreadcrumb">
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbVin">VIN</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item active">
+                        <span>Catalog Tree</span>
+                    </span>
+                </div>
+                <div class="nav-header">
+                    <div class="nav-title">
+                        <h2>📋 Parts Catalog</h2>
+                        <span class="subtitle">Select one or more catalog objects, then click Next</span>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" id="nextToManufacturersBtn" style="display: none;">Next →</button>
+                        <button class="btn btn-secondary" id="backToVinBtn">← Back to VIN</button>
+                    </div>
+                </div>
+                <div id="catalogSelectionInfo" style="padding: 10px; margin-bottom: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px; display: block;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <span id="selectedCatalogCount" style="font-weight: 600; color: #856404;">0 catalog objects selected</span>
+                        <span style="font-size: 12px; color: #856404;">💡 <strong>Tip:</strong> Hold <kbd style="background: #fff; padding: 2px 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 11px;">Ctrl</kbd> (Windows/Linux) or <kbd style="background: #fff; padding: 2px 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 11px;">Cmd</kbd> (Mac) and click to select multiple items</span>
+                    </div>
                 </div>
             </div>
             
@@ -632,11 +907,26 @@
         let searchActive = false;
         
         // Manufacturer and Parts state
-        let selectedCatalogObjectID = null;
+        let selectedCatalogObjectID = null; // Keep for backward compatibility
+        let selectedCatalogObjects = []; // Array of {catalogObjectID, catalogObjectName, category, group}
+        let selectedGroups = []; // Array of {groupID, groupName, categoryID, categoryName}
         let manufacturers = [];
         let allBrands = [];
         let selectedBrands = new Set();
         let parts = [];
+        
+        // Progress summary state
+        let vinDecodeResponse = null;
+        let selectedCategory = null;
+        let selectedGroup = null;
+        let autoAdvanceToPartsScreen = false; // Flag to auto-advance from manufacturers to parts
+        let selectedCatalogObjectName = null;
+        let apiResponses = {
+            vinDecode: null,
+            categoryTree: null,
+            manufacturers: null,
+            parts: null
+        };
         
         // Initialize when document is ready
         $(document).ready(function() {
@@ -689,9 +979,40 @@
                 }
             });
             
+            // Back to VIN button
+            $('#backToVinBtn').click(function() {
+                showVinForm();
+            });
+            
+            // Next to Manufacturers button
+            $('#nextToManufacturersBtn').click(function() {
+                if (selectedCatalogObjects.length === 0 && selectedGroups.length === 0) {
+                    showStatus('⚠️ Please select at least one catalog object or group', 'warning');
+                    return;
+                }
+                // Set flag to auto-advance to parts screen after manufacturers load
+                autoAdvanceToPartsScreen = true;
+                // Build array of both catalog object IDs and group IDs
+                const catalogObjectIDs = selectedCatalogObjects.map(obj => obj.catalogObjectID);
+                const catalogGroupIDs = selectedGroups.map(grp => grp.groupID);
+                fetchManufacturers(catalogObjectIDs, catalogGroupIDs);
+            });
+            
             // Manufacturer selection buttons
-            $('#backToTreeBtn').click(function() {
+            $('#backToTreeBtn').click(function(e) {
+                e.preventDefault();
+                console.log('Back to Catalog clicked');
                 showTreeView();
+            });
+            
+            $('#breadcrumbTree').click(function(e) {
+                e.preventDefault();
+                showTreeView();
+            });
+            
+            $('#breadcrumbVinFromManufacturers').click(function(e) {
+                e.preventDefault();
+                showVinForm();
             });
             
             $('#selectAllBtn').click(function() {
@@ -713,6 +1034,26 @@
             // Parts view buttons
             $('#backToManufacturersBtn').click(function() {
                 showManufacturerSelection();
+            });
+            
+            $('#breadcrumbVinFromParts').click(function(e) {
+                e.preventDefault();
+                showVinForm();
+            });
+            
+            $('#breadcrumbTreeFromParts').click(function(e) {
+                e.preventDefault();
+                showTreeView();
+            });
+            
+            $('#breadcrumbManufacturers').click(function(e) {
+                e.preventDefault();
+                showManufacturerSelection();
+            });
+            
+            $('#breadcrumbVin').click(function(e) {
+                e.preventDefault();
+                showVinForm();
             });
             
             // Manufacturer search
@@ -798,6 +1139,7 @@
         function showLoginForm() {
             $('#loginForm').removeClass('hidden');
             $('#vinForm').addClass('hidden');
+            $('#treeView').addClass('hidden');
             $('#tree').hide();
             $('.controls').hide();
         }
@@ -805,31 +1147,115 @@
         function showVinForm() {
             $('#loginForm').addClass('hidden');
             $('#vinForm').removeClass('hidden');
+            $('#treeView').addClass('hidden');
             $('#tree').hide();
+            $('#manufacturerSelection').addClass('hidden');
+            $('#partsView').addClass('hidden');
             $('.controls').hide();
         }
         
         function showTreeView() {
+            console.log('showTreeView called');
+            // Hide all other views
             $('#loginForm').addClass('hidden');
             $('#vinForm').addClass('hidden');
-            $('#manufacturerSelection').addClass('hidden');
+            $('#manufacturerSelection').addClass('hidden').css('display', 'none');
             $('#partsView').addClass('hidden');
-            $('#tree').show();
-            $('.controls').show();
+            
+            // Show tree view wrapper and tree - remove hidden class and ensure display
+            $('#treeView').removeClass('hidden').css('display', 'block');
+            $('#tree').removeClass('hidden').css('display', 'block');
+            $('.controls').css('display', 'flex');
+            
+            // Log for debugging
+            console.log('showTreeView - manufacturerSelection hidden:', $('#manufacturerSelection').hasClass('hidden'));
+            console.log('showTreeView - treeView visible:', $('#treeView').is(':visible'));
+            console.log('showTreeView - tree visible:', $('#tree').is(':visible'));
+            console.log('showTreeView - treeInstance exists:', !!treeInstance);
+            
+            // Restore selected catalog objects in the tree
+            if (treeInstance) {
+                try {
+                    // Deselect all first
+                    treeInstance.deselect_all();
+                    
+                    // Select all previously selected catalog objects
+                    if (selectedCatalogObjects.length > 0) {
+                        selectedCatalogObjects.forEach((obj) => {
+                            const nodeId = 'item_' + obj.catalogObjectID;
+                            try {
+                                treeInstance.select_node(nodeId);
+                            } catch (e) {
+                                console.log('Could not select node:', nodeId, e);
+                            }
+                        });
+                        
+                        // Update UI
+                        $('#selectedCatalogCount').text(`${selectedCatalogObjects.length} catalog object${selectedCatalogObjects.length !== 1 ? 's' : ''} selected`);
+                        $('#nextToManufacturersBtn').show();
+                        $('#catalogSelectionInfo').show();
+                        $('#catalogSelectionInfo').css('background', '#e8f5e9').css('border-left-color', '#4CAF50');
+                        $('#selectedCatalogCount').css('color', '#2e7d32');
+                    } else if (selectedCatalogObjectID) {
+                        // Fallback for backward compatibility
+                        const nodeId = 'item_' + selectedCatalogObjectID;
+                        try {
+                            treeInstance.select_node(nodeId);
+                        } catch (e) {
+                            console.log('Could not select node:', e);
+                        }
+                    }
+                } catch (e) {
+                    console.log('Error restoring tree selection:', e);
+                }
+            }
         }
         
         function showManufacturerSelection() {
-            $('#tree').hide();
-            $('.controls').hide();
-            $('#manufacturerSelection').removeClass('hidden');
+            console.log('showManufacturerSelection called');
+            $('#loginForm').addClass('hidden');
+            $('#vinForm').addClass('hidden');
+            $('#treeView').addClass('hidden').css('display', 'none');
+            $('#tree').addClass('hidden').css('display', 'none');
+            $('.controls').css('display', 'none');
+            $('#manufacturerSelection').removeClass('hidden').css('display', 'block');
             $('#partsView').addClass('hidden');
+            // Preserve manufacturer selection state when navigating back
+            if (manufacturers.length > 0) {
+                $('#manufacturerLoading').hide();
+                $('#manufacturerContent').show();
+                renderManufacturers();
+                updateSelectedCount();
+                // Update breadcrumb with catalog object name
+                if (selectedCatalogObjectName) {
+                    $('#breadcrumbCatalogName').text(selectedCatalogObjectName);
+                    $('#manufacturerSubtitle').text(`Select manufacturers and brands for: ${selectedCatalogObjectName}`);
+                }
+            }
         }
         
         function showPartsView() {
+            $('#loginForm').addClass('hidden');
+            $('#vinForm').addClass('hidden');
+            $('#treeView').addClass('hidden');
             $('#tree').hide();
             $('.controls').hide();
             $('#manufacturerSelection').addClass('hidden');
-            $('#partsView').removeClass('hidden');
+            $('#partsView').removeClass('hidden').css('display', 'block');
+            // Preserve parts data when navigating back
+            if (parts.length > 0) {
+                $('#partsLoading').hide();
+                $('#partsContent').show();
+                renderParts();
+                // Update breadcrumb with catalog and manufacturer info
+                if (selectedCatalogObjectName) {
+                    $('#breadcrumbPartsName').text(`${selectedCatalogObjectName} - Parts`);
+                    $('#partsSubtitle').text(`Showing ${parts.length} parts for selected manufacturers`);
+                }
+            } else {
+                // Even if no parts yet, ensure partsContent is ready to be shown
+                // It will be shown after parts are loaded
+            }
         }
         
         function hideManufacturerSelection() {
@@ -918,6 +1344,13 @@
                         throw new Error('Vehicle configuration not found in VIN decode response');
                     }
                     
+                    // Store full response for progress summary and download
+                    vinDecodeResponse = decodeResponse;
+                    apiResponses.vinDecode = decodeResponse;
+                    
+                    // Update progress summary
+                    updateProgressSummary();
+                    
                     showStatus('✓ VIN decoded successfully!', 'success');
                     $('#decodeVinBtn').prop('disabled', false).text('Decode VIN');
                     
@@ -964,9 +1397,13 @@
                 const categoryTree = await response.json();
                 catalogData = categoryTree;
                 
-                // Show tree view and build the tree
-                showTreeView();
+                // Store category tree response for progress summary and download
+                apiResponses.categoryTree = categoryTree;
+                
+                // Build the tree first, then show tree view
                 buildTree(categoryTree);
+                updateProgressSummary();
+                showTreeView();
                 
             } catch (error) {
                 console.error('Category tree error:', error);
@@ -1068,8 +1505,11 @@
         function buildTree(data) {
             const treeData = [];
             
+            // Sort categories by ID
+            const sortedCategories = data.data.sort((a, b) => a.categoryID - b.categoryID);
+            
             // Convert catalog data to jsTree format
-            data.data.forEach((category) => {
+            sortedCategories.forEach((category) => {
                 const categoryNode = {
                     id: 'cat_' + category.categoryID,
                     text: `<span class="tree-category">${category.categoryID}: ${escapeHtml(category.categoryName)} (${category.groups.length})</span>`,
@@ -1077,7 +1517,10 @@
                     state: { opened: false }
                 };
                 
-                category.groups.forEach((group) => {
+                // Sort groups by ID
+                const sortedGroups = category.groups.sort((a, b) => a.groupID - b.groupID);
+                
+                sortedGroups.forEach((group) => {
                     const groupNode = {
                         id: 'grp_' + group.groupID,
                         text: `<span class="tree-group">${group.groupID}: ${escapeHtml(group.groupName)} (${group.catalogObjects.length})</span>`,
@@ -1085,7 +1528,10 @@
                         state: { opened: false }
                     };
                     
-                    group.catalogObjects.forEach((item) => {
+                    // Sort catalog objects by ID
+                    const sortedObjects = group.catalogObjects.sort((a, b) => a.catalogObjectID - b.catalogObjectID);
+                    
+                    sortedObjects.forEach((item) => {
                         const itemNode = {
                             id: 'item_' + item.catalogObjectID,
                             text: `<span class="tree-item">${item.catalogObjectID}: ${escapeHtml(item.catalogObjectName)}</span>`,
@@ -1112,7 +1558,7 @@
                         'dots': true
                     },
                     'animation': 200,
-                    'multiple': false,
+                    'multiple': true,
                     'check_callback': true
                 },
                 'search': {
@@ -1142,16 +1588,156 @@
                 }
             });
             
-            // Add click handler for catalog objects
-            $('#tree').on('select_node.jstree', function(e, data) {
-                const nodeId = data.node.id;
-                // Only handle catalog object nodes (items), not categories or groups
-                if (nodeId.startsWith('item_')) {
-                    const catalogObjectID = parseInt(nodeId.replace('item_', ''));
-                    selectedCatalogObjectID = catalogObjectID;
-                    fetchManufacturers(catalogObjectID);
-                }
+            // Add handlers for multiple catalog object selection (Ctrl/Cmd + Click)
+            $('#tree').on('select_node.jstree deselect_node.jstree', function(e, data) {
+                updateSelectedCatalogObjects();
             });
+            
+            // Function to update selected catalog objects and groups
+            function updateSelectedCatalogObjects() {
+                const selectedNodes = treeInstance.get_selected(true);
+                selectedCatalogObjects = [];
+                selectedGroups = [];
+                
+                selectedNodes.forEach((node) => {
+                    const nodeId = node.id;
+                    
+                    // Handle group nodes (grp_*)
+                    if (nodeId.startsWith('grp_')) {
+                        const groupID = parseInt(nodeId.replace('grp_', ''));
+                        
+                        // Extract group name from the node text
+                        const nodeText = $(node.text).text() || node.text;
+                        const match = nodeText.match(/:\s*(.+?)\s*\(/);
+                        const groupName = match ? match[1].trim() : `Group ${groupID}`;
+                        
+                        // Find category for this group
+                        let categoryInfo = null;
+                        if (catalogData && catalogData.data) {
+                            catalogData.data.forEach((category) => {
+                                category.groups.forEach((group) => {
+                                    if (group.groupID === groupID) {
+                                        categoryInfo = {
+                                            categoryID: category.categoryID,
+                                            categoryName: category.categoryName
+                                        };
+                                    }
+                                });
+                            });
+                        }
+                        
+                        selectedGroups.push({
+                            groupID: groupID,
+                            groupName: groupName,
+                            categoryID: categoryInfo ? categoryInfo.categoryID : null,
+                            categoryName: categoryInfo ? categoryInfo.categoryName : null
+                        });
+                    }
+                    // Handle catalog object nodes (item_)
+                    else if (nodeId.startsWith('item_')) {
+                        const catalogObjectID = parseInt(nodeId.replace('item_', ''));
+                        
+                        // Extract catalog object name from the node text
+                        const nodeText = $(node.text).text() || node.text;
+                        const match = nodeText.match(/:\s*(.+)$/);
+                        const catalogObjectName = match ? match[1].trim() : `Catalog Object ${catalogObjectID}`;
+                        
+                        // Extract category and group information from tree structure
+                        let categoryInfo = null;
+                        let groupInfo = null;
+                        
+                        if (catalogData && catalogData.data) {
+                            catalogData.data.forEach((category) => {
+                                category.groups.forEach((group) => {
+                                    group.catalogObjects.forEach((item) => {
+                                        if (item.catalogObjectID === catalogObjectID) {
+                                            categoryInfo = {
+                                                categoryID: category.categoryID,
+                                                categoryName: category.categoryName
+                                            };
+                                            groupInfo = {
+                                                groupID: group.groupID,
+                                                groupName: group.groupName
+                                            };
+                                        }
+                                    });
+                                });
+                            });
+                        }
+                        
+                        selectedCatalogObjects.push({
+                            catalogObjectID: catalogObjectID,
+                            catalogObjectName: catalogObjectName,
+                            category: categoryInfo,
+                            group: groupInfo
+                        });
+                    }
+                });
+                
+                // Update UI with combined counts
+                const objectCount = selectedCatalogObjects.length;
+                const groupCount = selectedGroups.length;
+                const totalCount = objectCount + groupCount;
+                
+                let countText = '';
+                if (totalCount > 0) {
+                    if (objectCount > 0 && groupCount > 0) {
+                        countText = `${objectCount} object${objectCount !== 1 ? 's' : ''} + ${groupCount} group${groupCount !== 1 ? 's' : ''} selected`;
+                    } else if (objectCount > 0) {
+                        countText = `${objectCount} catalog object${objectCount !== 1 ? 's' : ''} selected`;
+                    } else {
+                        countText = `${groupCount} group${groupCount !== 1 ? 's' : ''} selected`;
+                    }
+                } else {
+                    countText = '0 items selected';
+                }
+                
+                $('#selectedCatalogCount').text(countText);
+                
+                if (totalCount > 0) {
+                    $('#nextToManufacturersBtn').show();
+                    $('#catalogSelectionInfo').show();
+                    $('#catalogSelectionInfo').css('background', '#e8f5e9').css('border-left-color', '#4CAF50');
+                    $('#selectedCatalogCount').css('color', '#2e7d32');
+                } else {
+                    $('#nextToManufacturersBtn').hide();
+                    $('#catalogSelectionInfo').show();
+                    $('#catalogSelectionInfo').css('background', '#fff3cd').css('border-left-color', '#ffc107');
+                    $('#selectedCatalogCount').css('color', '#856404');
+                }
+                
+                // Update progress summary
+                updateProgressSummary();
+                
+                // For backward compatibility, set the first selected as primary
+                if (selectedCatalogObjects.length > 0) {
+                    selectedCatalogObjectID = selectedCatalogObjects[0].catalogObjectID;
+                    selectedCatalogObjectName = selectedCatalogObjects[0].catalogObjectName;
+                    if (selectedCatalogObjects[0].category) {
+                        selectedCategory = selectedCatalogObjects[0].category;
+                    }
+                    if (selectedCatalogObjects[0].group) {
+                        selectedGroup = selectedCatalogObjects[0].group;
+                    }
+                } else if (selectedGroups.length > 0) {
+                    // Use first group's category if no catalog objects selected
+                    if (selectedGroups[0].categoryID) {
+                        selectedCategory = {
+                            categoryID: selectedGroups[0].categoryID,
+                            categoryName: selectedGroups[0].categoryName
+                        };
+                    }
+                    selectedGroup = {
+                        groupID: selectedGroups[0].groupID,
+                        groupName: selectedGroups[0].groupName
+                    };
+                } else {
+                    selectedCatalogObjectID = null;
+                    selectedCatalogObjectName = null;
+                    selectedCategory = null;
+                    selectedGroup = null;
+                }
+            }
             
             showStatus('✓ Catalog loaded successfully! (Total: ' + treeData.length + ' categories)', 'success');
         }
@@ -1185,9 +1771,18 @@
         }
         
         // Fetch Manufacturers Function
-        async function fetchManufacturers(catalogObjectID) {
+        async function fetchManufacturers(catalogObjectIDs, catalogGroupIDs) {
             if (!accessToken || !vehicleConfig) {
                 showStatus('✗ Please login and decode VIN first', 'error');
+                return;
+            }
+            
+            // Handle both single ID (backward compatibility) and array of IDs
+            const objIds = Array.isArray(catalogObjectIDs) ? catalogObjectIDs : (catalogObjectIDs ? [catalogObjectIDs] : []);
+            const grpIds = Array.isArray(catalogGroupIDs) ? catalogGroupIDs : (catalogGroupIDs ? [catalogGroupIDs] : []);
+            
+            if (objIds.length === 0 && grpIds.length === 0) {
+                showStatus('⚠️ Please select at least one catalog object or group', 'warning');
                 return;
             }
             
@@ -1196,7 +1791,15 @@
                 $('#manufacturerLoading').show();
                 $('#manufacturerContent').hide();
                 
-                const url = `${API_BASE_URL}/api/parts/manufacturers?regionIDs=1&allManufacturers=true&includeOem=true&catalogObjectIDs=${catalogObjectID}`;
+                // Build URL with both catalog object IDs and group IDs
+                let url = `${API_BASE_URL}/api/parts/manufacturers?regionIDs=1&allManufacturers=true&includeOem=true`;
+                
+                if (objIds.length > 0) {
+                    url += `&catalogObjectIDs=${objIds.join(',')}`;
+                }
+                if (grpIds.length > 0) {
+                    url += `&catalogGroupIDs=${grpIds.join(',')}`;
+                }
                 
                 const response = await fetch(url, {
                     method: 'GET',
@@ -1214,6 +1817,9 @@
                 
                 const manufacturersResponse = await response.json();
                 manufacturers = manufacturersResponse.data;
+                
+                // Store manufacturers response for progress summary and download
+                apiResponses.manufacturers = manufacturersResponse;
                 
                 // Build all brands list and select all by default
                 allBrands = [];
@@ -1235,9 +1841,27 @@
                 renderManufacturers();
                 updateSelectedCount();
                 
+                // Update breadcrumb with catalog object name
+                if (selectedCatalogObjectName) {
+                    $('#breadcrumbCatalogName').text(selectedCatalogObjectName);
+                    $('#manufacturerSubtitle').text(`Select manufacturers and brands for: ${selectedCatalogObjectName}`);
+                }
+                
+                // Update progress summary
+                updateProgressSummary();
+                
                 $('#manufacturerLoading').hide();
                 $('#manufacturerContent').show();
                 showStatus('✓ Manufacturers loaded successfully!', 'success');
+                
+                // Auto-advance to parts screen if coming from catalog tree
+                if (autoAdvanceToPartsScreen) {
+                    autoAdvanceToPartsScreen = false;
+                    // Automatically proceed to parts screen after a short delay
+                    setTimeout(() => {
+                        fetchParts();
+                    }, 500);
+                }
                 
             } catch (error) {
                 console.error('Manufacturers error:', error);
@@ -1379,6 +2003,8 @@
         // Update Selected Count
         function updateSelectedCount() {
             $('#selectedCount').text(`${selectedBrands.size} brand${selectedBrands.size !== 1 ? 's' : ''} selected`);
+            // Update progress summary when brand selection changes
+            updateProgressSummary();
         }
         
         // Select All Brands
@@ -1425,8 +2051,21 @@
         
         // Fetch Parts Function
         async function fetchParts() {
-            if (!accessToken || !vehicleConfig || !selectedCatalogObjectID) {
+            if (!accessToken || !vehicleConfig) {
                 showStatus('✗ Missing required information', 'error');
+                return;
+            }
+            
+            // Use selectedCatalogObjects and selectedGroups arrays
+            const catalogObjectIDs = selectedCatalogObjects.length > 0 
+                ? selectedCatalogObjects.map(obj => obj.catalogObjectID)
+                : (selectedCatalogObjectID ? [selectedCatalogObjectID] : []);
+            const catalogGroupIDs = selectedGroups.length > 0 
+                ? selectedGroups.map(grp => grp.groupID)
+                : [];
+            
+            if (catalogObjectIDs.length === 0 && catalogGroupIDs.length === 0) {
+                showStatus('✗ Please select at least one catalog object or group', 'error');
                 return;
             }
             
@@ -1459,7 +2098,15 @@
                     cclDetails: cclDetails
                 };
                 
-                const url = `${API_BASE_URL}/api/parts/get-part-fitments?catalogObjectIDs=${selectedCatalogObjectID}&regionID=1`;
+                // Build URL with both catalog object IDs and group IDs
+                let url = `${API_BASE_URL}/api/parts/get-part-fitments?regionID=1`;
+                
+                if (catalogObjectIDs.length > 0) {
+                    url += `&catalogObjectIDs=${catalogObjectIDs.join(',')}`;
+                }
+                if (catalogGroupIDs.length > 0) {
+                    url += `&catalogGroupIDs=${catalogGroupIDs.join(',')}`;
+                }
                 
                 const response = await fetch(url, {
                     method: 'GET',
@@ -1478,9 +2125,36 @@
                 }
                 
                 const partsResponse = await response.json();
-                parts = partsResponse.data;
                 
+                console.log('Parts API response:', partsResponse);
+                
+                // Handle different response structures
+                if (partsResponse.data && Array.isArray(partsResponse.data)) {
+                    parts = partsResponse.data;
+                } else if (Array.isArray(partsResponse)) {
+                    parts = partsResponse;
+                } else {
+                    parts = [];
+                    console.warn('Unexpected parts response structure:', partsResponse);
+                }
+                
+                console.log('Parts array after processing:', parts);
+                console.log('Parts count:', parts.length);
+                
+                // Store parts response for progress summary and download
+                apiResponses.parts = partsResponse;
+                
+                // Render parts immediately
                 renderParts();
+                
+                // Update breadcrumb with catalog and manufacturer info
+                if (selectedCatalogObjectName) {
+                    $('#breadcrumbPartsName').text(`${selectedCatalogObjectName} - Parts`);
+                    $('#partsSubtitle').text(`Showing ${parts.length} parts for selected manufacturers`);
+                }
+                
+                // Update progress summary
+                updateProgressSummary();
                 
                 $('#partsLoading').hide();
                 $('#partsContent').show();
@@ -1497,10 +2171,31 @@
         function renderParts() {
             const partsList = $('#partsList');
             
+            console.log('=== RENDERING PARTS ===');
+            console.log('Parts variable:', parts);
+            console.log('Parts type:', typeof parts);
+            console.log('Is array:', Array.isArray(parts));
+            console.log('Parts length:', parts ? parts.length : 'null/undefined');
+            
+            if (!parts) {
+                console.error('Parts is null or undefined!');
+                partsList.html('<p style="text-align: center; padding: 20px; color: #dc3545;">Error: Parts data is not available. Check console for details.</p>');
+                return;
+            }
+            
+            if (!Array.isArray(parts)) {
+                console.error('Parts is not an array! Type:', typeof parts, 'Value:', parts);
+                partsList.html('<p style="text-align: center; padding: 20px; color: #dc3545;">Error: Parts data is not in the expected format. Check console for details.</p>');
+                return;
+            }
+            
             if (parts.length === 0) {
+                console.log('Parts array is empty');
                 partsList.html('<p style="text-align: center; padding: 20px; color: #6c757d;">No parts found for the selected manufacturers.</p>');
                 return;
             }
+            
+            console.log('Rendering', parts.length, 'parts');
             
             let html = `
                 <table class="parts-table">
@@ -1519,22 +2214,45 @@
                     <tbody>
             `;
             
-            parts.forEach((part) => {
-                const imageUrl = part.partContents && part.partContents.length > 0 ? part.partContents[0].url : '';
-                const imageHtml = imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="Part image" class="part-image" onerror="this.style.display='none'" />` : '-';
-                
-                html += `
-                    <tr>
-                        <td>${imageHtml}</td>
-                        <td><span class="part-number">${escapeHtml(part.partNumber || '-')}</span></td>
-                        <td>${escapeHtml(part.catalogObject?.catalogObjectName || '-')}</td>
-                        <td><span class="part-manufacturer">${escapeHtml(part.manufacturer?.name || '-')}</span></td>
-                        <td>${escapeHtml(part.manufacturer?.brand?.name || '-')}</td>
-                        <td>${escapeHtml(part.fromYear || '')} - ${escapeHtml(part.toYear || '')}</td>
-                        <td>${escapeHtml(part.qty || '-')}</td>
-                        <td>${escapeHtml(part.condition || '-')}</td>
-                    </tr>
-                `;
+            parts.forEach((part, index) => {
+                try {
+                    const imageUrl = part.partContents && Array.isArray(part.partContents) && part.partContents.length > 0 ? part.partContents[0].url : '';
+                    const imageHtml = imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="Part image" class="part-image" onerror="this.style.display='none'" />` : '-';
+                    
+                    // Safely access nested properties with fallbacks
+                    const partNumber = part.partNumber || part.partnumber || '-';
+                    const partName = part.catalogObject?.catalogObjectName || part.catalogObjectName || part.name || '-';
+                    const manufacturerName = part.manufacturer?.name || part.manufacturerName || '-';
+                    const brandName = part.manufacturer?.brand?.name || part.brandName || part.brand?.name || '-';
+                    const fromYear = part.fromYear || part.fromyear || '';
+                    const toYear = part.toYear || part.toyear || '';
+                    const yearRange = fromYear ? `${fromYear} - ${toYear}` : '-';
+                    const qty = part.qty || part.quantity || part.qtyRequired || '-';
+                    const condition = part.condition || part.partCondition || '-';
+                    
+                    html += `
+                        <tr>
+                            <td>${imageHtml}</td>
+                            <td><span class="part-number">${escapeHtml(String(partNumber))}</span></td>
+                            <td>${escapeHtml(String(partName))}</td>
+                            <td><span class="part-manufacturer">${escapeHtml(String(manufacturerName))}</span></td>
+                            <td>${escapeHtml(String(brandName))}</td>
+                            <td>${escapeHtml(yearRange)}</td>
+                            <td>${escapeHtml(String(qty))}</td>
+                            <td>${escapeHtml(String(condition))}</td>
+                        </tr>
+                    `;
+                } catch (error) {
+                    console.error('Error rendering part at index', index, ':', error, part);
+                    // Render a row with error info for debugging
+                    html += `
+                        <tr style="background: #fff3cd;">
+                            <td colspan="8" style="color: #856404; padding: 10px;">
+                                Error rendering part (check console for details). Part keys: ${Object.keys(part || {}).join(', ')}
+                            </td>
+                        </tr>
+                    `;
+                }
             });
             
             html += `
@@ -1543,6 +2261,277 @@
             `;
             
             partsList.html(html);
+        }
+        
+        // Update Progress Summary Function
+        function updateProgressSummary() {
+            // Show progress summary if any data is available
+            const hasAnyData = vinDecodeResponse || selectedCatalogObjects.length > 0 || selectedCategory || apiResponses.manufacturers || apiResponses.parts;
+            
+            if (hasAnyData) {
+                $('#progressSummary').removeClass('hidden');
+            } else {
+                $('#progressSummary').addClass('hidden');
+                return;
+            }
+            
+            // Update Vehicle Information Section
+            if (vinDecodeResponse && vinDecodeResponse.data && vinDecodeResponse.data.length > 0) {
+                const vehicleData = vinDecodeResponse.data[0];
+                let vehicleHtml = '';
+                
+                // Display only meaningful vehicle fields in a clean format
+                const vehicleFields = [
+                    { key: 'year', label: 'Year' },
+                    { key: 'make', label: 'Make' },
+                    { key: 'model', label: 'Model' },
+                    { key: 'trim', label: 'Trim' },
+                    { key: 'bodyType', label: 'Body Type' },
+                    { key: 'bodyStyle', label: 'Body Style' },
+                    { key: 'engine', label: 'Engine' },
+                    { key: 'engineSize', label: 'Engine Size' },
+                    { key: 'engineType', label: 'Engine Type' },
+                    { key: 'transmission', label: 'Transmission' },
+                    { key: 'driveType', label: 'Drive Type' },
+                    { key: 'fuelType', label: 'Fuel Type' }
+                ];
+                
+                vehicleFields.forEach((field) => {
+                    const value = vehicleData[field.key];
+                    if (value !== null && value !== undefined && value !== '') {
+                        // Handle nested objects (like engine)
+                        let displayValue = value;
+                        if (typeof value === 'object') {
+                            if (value.name) {
+                                displayValue = value.name;
+                            } else if (value.description) {
+                                displayValue = value.description;
+                            } else {
+                                displayValue = Object.values(value).filter(v => v).join(', ');
+                            }
+                        }
+                        vehicleHtml += `
+                            <div class="progress-item">
+                                <span class="progress-label">${escapeHtml(field.label)}:</span>
+                                <span class="progress-value">${escapeHtml(String(displayValue))}</span>
+                            </div>
+                        `;
+                    }
+                });
+                
+                // Also show VIN if available
+                if (vehicleData.vin) {
+                    vehicleHtml += `
+                        <div class="progress-item">
+                            <span class="progress-label">VIN:</span>
+                            <span class="progress-value">${escapeHtml(vehicleData.vin)}</span>
+                        </div>
+                    `;
+                }
+                
+                $('#vehicleInfoContent').html(vehicleHtml);
+                $('#vehicleInfoSection').removeClass('hidden');
+            } else {
+                $('#vehicleInfoSection').addClass('hidden');
+            }
+            
+            // Update Catalog Selection Section
+            if (selectedCatalogObjects.length > 0) {
+                let catalogHtml = '';
+                
+                catalogHtml += `
+                    <div class="progress-item">
+                        <span class="progress-label">Selected:</span>
+                        <span class="progress-value">${selectedCatalogObjects.length} catalog object${selectedCatalogObjects.length !== 1 ? 's' : ''}</span>
+                    </div>
+                `;
+                
+                // Show catalog objects grouped by category/group
+                const groupedByCategory = new Map();
+                selectedCatalogObjects.forEach((obj) => {
+                    if (obj.category && obj.group) {
+                        const key = `${obj.category.categoryID}-${obj.group.groupID}`;
+                        if (!groupedByCategory.has(key)) {
+                            groupedByCategory.set(key, {
+                                category: obj.category,
+                                group: obj.group,
+                                catalogObjects: []
+                            });
+                        }
+                        groupedByCategory.get(key).catalogObjects.push(obj);
+                    }
+                });
+                
+                // Display grouped catalog objects
+                groupedByCategory.forEach((groupData) => {
+                    catalogHtml += `
+                        <div class="progress-item" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e9ecef;">
+                            <span class="progress-label" style="font-weight: 600; color: #667eea;">${escapeHtml(groupData.category.categoryName)} / ${escapeHtml(groupData.group.groupName)}:</span>
+                            <span class="progress-value">${groupData.catalogObjects.length} object${groupData.catalogObjects.length !== 1 ? 's' : ''}</span>
+                        </div>
+                    `;
+                    
+                    // Show catalog object names (limit to first 3 per group)
+                    const objectNames = groupData.catalogObjects
+                        .slice(0, 3)
+                        .map(obj => obj.catalogObjectName)
+                        .join(', ');
+                    const moreText = groupData.catalogObjects.length > 3 
+                        ? ` +${groupData.catalogObjects.length - 3} more` 
+                        : '';
+                    
+                    if (objectNames) {
+                        catalogHtml += `
+                            <div class="progress-item" style="padding-left: 15px; font-size: 12px;">
+                                <span class="progress-value">${escapeHtml(objectNames)}${moreText}</span>
+                            </div>
+                        `;
+                    }
+                });
+                
+                $('#catalogSelectionContent').html(catalogHtml);
+                $('#catalogSelectionSection').removeClass('hidden');
+            } else if (selectedCategory && selectedGroup && selectedCatalogObjectID) {
+                // Fallback for backward compatibility
+                let catalogHtml = '';
+                
+                catalogHtml += `
+                    <div class="progress-item">
+                        <span class="progress-label">Category:</span>
+                        <span class="progress-value">${selectedCategory.categoryID} - ${escapeHtml(selectedCategory.categoryName)}</span>
+                    </div>
+                    <div class="progress-item">
+                        <span class="progress-label">Group:</span>
+                        <span class="progress-value">${selectedGroup.groupID} - ${escapeHtml(selectedGroup.groupName)}</span>
+                    </div>
+                    <div class="progress-item">
+                        <span class="progress-label">Catalog Object:</span>
+                        <span class="progress-value">${selectedCatalogObjectID} - ${escapeHtml(selectedCatalogObjectName || 'N/A')}</span>
+                    </div>
+                `;
+                
+                $('#catalogSelectionContent').html(catalogHtml);
+                $('#catalogSelectionSection').removeClass('hidden');
+            } else {
+                $('#catalogSelectionSection').addClass('hidden');
+            }
+            
+            // Update Manufacturer Selection Section
+            if (apiResponses.manufacturers && manufacturers.length > 0) {
+                const selectedBrandsCount = selectedBrands.size;
+                const selectedManufacturers = new Map(); // Map of manufacturerID -> {name, brands: []}
+                
+                // Group selected brands by manufacturer
+                allBrands.forEach((brand) => {
+                    if (selectedBrands.has(brand.brandID)) {
+                        if (!selectedManufacturers.has(brand.manufacturerID)) {
+                            const mfr = manufacturers.find(m => m.manufacturerID === brand.manufacturerID);
+                            selectedManufacturers.set(brand.manufacturerID, {
+                                name: mfr ? mfr.manufacturerName : 'Unknown',
+                                brands: []
+                            });
+                        }
+                        selectedManufacturers.get(brand.manufacturerID).brands.push(brand.brandName);
+                    }
+                });
+                
+                let manufacturerHtml = `
+                    <div class="progress-item">
+                        <span class="progress-label">Selected:</span>
+                        <span class="progress-value">${selectedBrandsCount} brand${selectedBrandsCount !== 1 ? 's' : ''} from ${selectedManufacturers.size} manufacturer${selectedManufacturers.size !== 1 ? 's' : ''}</span>
+                    </div>
+                `;
+                
+                // Show selected manufacturers with their brands
+                selectedManufacturers.forEach((mfrData, mfrID) => {
+                    const brandsList = mfrData.brands.length <= 3 
+                        ? mfrData.brands.join(', ')
+                        : mfrData.brands.slice(0, 3).join(', ') + ` +${mfrData.brands.length - 3} more`;
+                    
+                    manufacturerHtml += `
+                        <div class="progress-item" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e9ecef;">
+                            <span class="progress-label" style="font-weight: 600; color: #667eea;">${escapeHtml(mfrData.name)}:</span>
+                            <span class="progress-value">${escapeHtml(brandsList)}</span>
+                        </div>
+                    `;
+                });
+                
+                $('#manufacturerSelectionContent').html(manufacturerHtml);
+                $('#manufacturerSelectionSection').removeClass('hidden');
+            } else {
+                $('#manufacturerSelectionSection').addClass('hidden');
+            }
+            
+            // Update Parts Section
+            if (apiResponses.parts && parts.length > 0) {
+                let partsHtml = `
+                    <div class="progress-item">
+                        <span class="progress-label">Total Parts:</span>
+                        <span class="progress-value">${parts.length}</span>
+                    </div>
+                `;
+                
+                $('#partsContent').html(partsHtml);
+                $('#partsSection').removeClass('hidden');
+            } else {
+                $('#partsSection').addClass('hidden');
+            }
+        }
+        
+        // Download JSON Helper Function
+        function downloadJSON(data, filename) {
+            try {
+                const jsonString = JSON.stringify(data, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Download error:', error);
+                showStatus('✗ Failed to download file: ' + error.message, 'error');
+            }
+        }
+        
+        // Download Functions for each response type
+        function downloadVinResponse() {
+            if (apiResponses.vinDecode) {
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+                downloadJSON(apiResponses.vinDecode, `vin-decode-${timestamp}.json`);
+            } else {
+                showStatus('⚠️ No VIN decode response available to download', 'warning');
+            }
+        }
+        
+        function downloadCategoryTree() {
+            if (apiResponses.categoryTree) {
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+                downloadJSON(apiResponses.categoryTree, `category-tree-${timestamp}.json`);
+            } else {
+                showStatus('⚠️ No category tree available to download', 'warning');
+            }
+        }
+        
+        function downloadManufacturers() {
+            if (apiResponses.manufacturers) {
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+                downloadJSON(apiResponses.manufacturers, `manufacturers-${timestamp}.json`);
+            } else {
+                showStatus('⚠️ No manufacturers data available to download', 'warning');
+            }
+        }
+        
+        function downloadParts() {
+            if (apiResponses.parts) {
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+                downloadJSON(apiResponses.parts, `parts-${timestamp}.json`);
+            } else {
+                showStatus('⚠️ No parts data available to download', 'warning');
+            }
         }
     </script>
 </body>
