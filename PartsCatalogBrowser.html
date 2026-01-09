@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parts Catalog Browser</title>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- jsTree CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+    
+    <!-- jsTree JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .header p {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .controls-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .controls-group label {
+            font-weight: 600;
+            color: #333;
+            min-width: 100px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        #search {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 15px;
+            font-size: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            transition: border-color 0.3s;
+        }
+        
+        #search:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        #tree {
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            background: white;
+        }
+        
+        /* jsTree customization */
+        #tree .jstree-node {
+            min-height: 32px;
+            will-change: transform;
+        }
+        
+        #tree .jstree-anchor {
+            padding: 5px 4px;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 3px;
+            transition: background-color 0.15s ease;
+            will-change: background-color;
+        }
+        
+        #tree .jstree-anchor:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        #tree .jstree-anchor.jstree-hovered {
+            background: rgba(102, 126, 234, 0.15);
+        }
+        
+        #tree .jstree-anchor.jstree-clicked {
+            background: rgba(102, 126, 234, 0.25);
+            color: #667eea;
+        }
+        
+        #tree .jstree-icon {
+            margin-right: 8px;
+        }
+        
+        /* GPU acceleration for tree children */
+        #tree .jstree-children {
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+        
+        .tree-category {
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .tree-group {
+            font-weight: 600;
+            color: #764ba2;
+        }
+        
+        .tree-item {
+            color: #555;
+            font-size: 13px;
+        }
+        
+        .status-message {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            display: none;
+        }
+        
+        .status-message.show {
+            display: block;
+        }
+        
+        .file-upload {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e8f5e9;
+            border: 2px dashed #4CAF50;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .file-upload input {
+            padding: 10px;
+            font-size: 14px;
+        }
+        
+        .upload-loader {
+            display: none;
+            margin-top: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px;
+            color: white;
+            text-align: center;
+        }
+        
+        .upload-loader.show {
+            display: block;
+        }
+        
+        .loader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .upload-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .upload-info {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .upload-duration {
+            font-size: 12px;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+        
+        .upload-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            animation: slideIn 0.3s ease;
+        }
+        
+        .upload-error {
+            background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .search-loading {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Form Styles */
+        .auth-form {
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .auth-form h2 {
+            margin-bottom: 20px;
+            color: #667eea;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .form-actions .btn {
+            flex: 1;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Manufacturer Selection Styles */
+        .selection-summary-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .manufacturer-tree-item {
+            margin-bottom: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .manufacturer-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .manufacturer-header:hover {
+            background: #e9ecef;
+        }
+        
+        .tree-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0 10px 0 0;
+            font-size: 12px;
+            color: #667eea;
+        }
+        
+        .tree-icon {
+            display: inline-block;
+            width: 12px;
+        }
+        
+        .manufacturer-checkbox-label {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            cursor: pointer;
+            margin: 0;
+        }
+        
+        .manufacturer-checkbox {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        .manufacturer-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .brand-count {
+            font-size: 12px;
+            color: #6c757d;
+            margin-left: auto;
+        }
+        
+        .brands-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .brands-container.expanded {
+            max-height: 1000px;
+        }
+        
+        .brands-list {
+            padding: 10px 15px 10px 40px;
+            background: white;
+        }
+        
+        .brand-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .brand-item:last-child {
+            border-bottom: none;
+        }
+        
+        .brand-checkbox {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        .brand-name {
+            color: #555;
+            font-size: 14px;
+        }
+        
+        /* Parts Display Styles */
+        .parts-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .parts-table th,
+        .parts-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .parts-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #667eea;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .parts-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .part-image {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .part-image:hover {
+            transform: scale(1.1);
+            transition: transform 0.2s;
+        }
+        
+        .part-number {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .part-manufacturer {
+            color: #764ba2;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Vehicle Parts Catalog</h1>
+            <p>Browse and search through our comprehensive parts database</p>
+        </div>
+        
+        <div class="controls">
+            <div class="controls-group">
+                <label>Quick Actions:</label>
+                <button class="btn btn-primary" id="expandAllBtn">Expand All</button>
+                <button class="btn btn-secondary" id="collapseAllBtn">Collapse All</button>
+            </div>
+            
+            <div class="controls-group">
+                <input type="text" id="search" placeholder="🔍 Search categories, groups, or parts...">
+                <span id="searchLoading" class="search-loading" style="display: none;">
+                    <span class="spinner"></span>Searching...
+                </span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div id="statusMessage" class="status-message"></div>
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <h2>🔐 Login Required</h2>
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" placeholder="Enter your username" />
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" placeholder="Enter your password" />
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="loginBtn">Login</button>
+                </div>
+            </div>
+            
+            <!-- VIN Input Form -->
+            <div id="vinForm" class="auth-form hidden">
+                <h2>🚗 Enter Vehicle VIN</h2>
+                <div class="form-group">
+                    <label for="vin">VIN:</label>
+                    <input type="text" id="vin" placeholder="Enter 17-character VIN" maxlength="17" />
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="decodeVinBtn">Decode VIN</button>
+                </div>
+            </div>
+            
+            <!-- Manufacturer Selection Form -->
+            <div id="manufacturerSelection" class="auth-form hidden">
+                <h2>🏭 Select Manufacturers</h2>
+                <div id="manufacturerLoading" class="upload-loader" style="display: none;">
+                    <div class="loader-content">
+                        <div class="upload-spinner"></div>
+                        <div class="upload-info">Loading manufacturers...</div>
+                    </div>
+                </div>
+                <div id="manufacturerContent" style="display: none;">
+                    <div class="form-group">
+                        <label for="manufacturerSearch">Search Manufacturers or Brands:</label>
+                        <input type="text" id="manufacturerSearch" placeholder="Type to search..." />
+                    </div>
+                    <div class="selection-summary-bar" style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                        <span id="selectedCount">0 brands selected</span>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-secondary" id="selectAllBtn">Select All</button>
+                            <button class="btn btn-secondary" id="deselectAllBtn">Deselect All</button>
+                        </div>
+                    </div>
+                    <div id="manufacturerList" style="max-height: 500px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 5px; padding: 15px;"></div>
+                    <div class="form-actions" style="margin-top: 20px;">
+                        <button class="btn btn-secondary" id="backToTreeBtn">Back to Catalog</button>
+                        <button class="btn btn-primary" id="viewPartsBtn">View Parts</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Parts Display Area -->
+            <div id="partsView" class="auth-form hidden">
+                <h2>🔧 Parts List</h2>
+                <div id="partsLoading" class="upload-loader" style="display: none;">
+                    <div class="loader-content">
+                        <div class="upload-spinner"></div>
+                        <div class="upload-info">Loading parts...</div>
+                    </div>
+                </div>
+                <div id="partsContent" style="display: none;">
+                    <div style="margin-bottom: 15px;">
+                        <button class="btn btn-secondary" id="backToManufacturersBtn">Back to Manufacturers</button>
+                    </div>
+                    <div id="partsList" style="max-height: 600px; overflow-y: auto;"></div>
+                </div>
+            </div>
+            
+            <div id="tree"></div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://pilot.epicor-auto-catalog.cloud';
+        let accessToken = null;
+        let vehicleConfig = null;
+        
+        // Application state
+        let catalogData;
+        let treeInstance;
+        let searchTimeout;
+        let isSearching = false;
+        let searchActive = false;
+        
+        // Manufacturer and Parts state
+        let selectedCatalogObjectID = null;
+        let manufacturers = [];
+        let allBrands = [];
+        let selectedBrands = new Set();
+        let parts = [];
+        
+        // Initialize when document is ready
+        $(document).ready(function() {
+            setupEventHandlers();
+            showLoginForm();
+        });
+        
+        function setupEventHandlers() {
+            // Login button
+            $('#loginBtn').click(function() {
+                const username = $('#username').val().trim();
+                const password = $('#password').val().trim();
+                
+                if (!username || !password) {
+                    showStatus('⚠️ Please fill in all fields', 'warning');
+                    return;
+                }
+                
+                loginUser(username, password);
+            });
+            
+            // Login form - allow Enter key to submit
+            $('#username, #password').on('keypress', function(e) {
+                if (e.which === 13) {
+                    $('#loginBtn').click();
+                }
+            });
+            
+            // Decode VIN button
+            $('#decodeVinBtn').click(function() {
+                const vin = $('#vin').val().trim();
+                
+                if (!vin) {
+                    showStatus('⚠️ Please enter a VIN', 'warning');
+                    return;
+                }
+                
+                if (vin.length !== 17) {
+                    showStatus('⚠️ VIN must be exactly 17 characters', 'warning');
+                    return;
+                }
+                
+                decodeVin(vin);
+            });
+            
+            // VIN form - allow Enter key to submit
+            $('#vin').on('keypress', function(e) {
+                if (e.which === 13) {
+                    $('#decodeVinBtn').click();
+                }
+            });
+            
+            // Manufacturer selection buttons
+            $('#backToTreeBtn').click(function() {
+                showTreeView();
+            });
+            
+            $('#selectAllBtn').click(function() {
+                selectAllBrands();
+            });
+            
+            $('#deselectAllBtn').click(function() {
+                deselectAllBrands();
+            });
+            
+            $('#viewPartsBtn').click(function() {
+                if (selectedBrands.size === 0) {
+                    showStatus('⚠️ Please select at least one brand', 'warning');
+                    return;
+                }
+                fetchParts();
+            });
+            
+            // Parts view buttons
+            $('#backToManufacturersBtn').click(function() {
+                showManufacturerSelection();
+            });
+            
+            // Manufacturer search
+            $('#manufacturerSearch').on('input', function() {
+                filterManufacturers($(this).val().toLowerCase().trim());
+            });
+            
+            // Expand All button
+            $('#expandAllBtn').click(function() {
+                if (treeInstance) {
+                    treeInstance.open_all();
+                }
+            });
+            
+            // Collapse All button
+            $('#collapseAllBtn').click(function() {
+                if (treeInstance) {
+                    treeInstance.close_all();
+                }
+            });
+            
+            // Search functionality with debouncing
+            $('#search').on('keyup', function() {
+                const searchTerm = $(this).val().toLowerCase().trim();
+                
+                // Clear previous timeout
+                clearTimeout(searchTimeout);
+                
+                // If search term is empty, clear search
+                if (!searchTerm) {
+                    if (treeInstance) {
+                        treeInstance.clear_search();
+                        searchActive = false;
+                        // Re-enable animations after search clears
+                        $('#tree').jstree('set_animation', 200);
+                    }
+                    $('#searchLoading').hide();
+                    isSearching = false;
+                    return;
+                }
+                
+                // Show loading indicator
+                $('#searchLoading').show();
+                isSearching = true;
+                searchActive = true;
+                // Disable animations while searching
+                if (treeInstance) {
+                    $('#tree').jstree('set_animation', 0);
+                }
+                
+                // Debounce the search - wait 500ms after user stops typing
+                searchTimeout = setTimeout(function() {
+                    if (treeInstance) {
+                        // Use optimized search with minimal re-rendering
+                        performOptimizedSearch(searchTerm);
+                    }
+                    $('#searchLoading').hide();
+                    isSearching = false;
+                }, 500);
+            });
+        }
+        
+        function performOptimizedSearch(searchTerm) {
+            if (!treeInstance) return;
+            
+            try {
+                // Disable animations during search for better performance
+                const tree = $('#tree');
+                const wasAnimated = tree.data('jstree').settings.core.animation;
+                tree.jstree('set_animation', 0);
+                
+                // Perform the search
+                treeInstance.search(searchTerm, false, false);
+                
+                // Restore animations
+                tree.jstree('set_animation', wasAnimated);
+            } catch (e) {
+                console.error('Search error:', e);
+            }
+        }
+        
+        // UI Flow Functions
+        function showLoginForm() {
+            $('#loginForm').removeClass('hidden');
+            $('#vinForm').addClass('hidden');
+            $('#tree').hide();
+            $('.controls').hide();
+        }
+        
+        function showVinForm() {
+            $('#loginForm').addClass('hidden');
+            $('#vinForm').removeClass('hidden');
+            $('#tree').hide();
+            $('.controls').hide();
+        }
+        
+        function showTreeView() {
+            $('#loginForm').addClass('hidden');
+            $('#vinForm').addClass('hidden');
+            $('#manufacturerSelection').addClass('hidden');
+            $('#partsView').addClass('hidden');
+            $('#tree').show();
+            $('.controls').show();
+        }
+        
+        function showManufacturerSelection() {
+            $('#tree').hide();
+            $('.controls').hide();
+            $('#manufacturerSelection').removeClass('hidden');
+            $('#partsView').addClass('hidden');
+        }
+        
+        function showPartsView() {
+            $('#tree').hide();
+            $('.controls').hide();
+            $('#manufacturerSelection').addClass('hidden');
+            $('#partsView').removeClass('hidden');
+        }
+        
+        function hideManufacturerSelection() {
+            $('#manufacturerSelection').addClass('hidden');
+        }
+        
+        // Login Function
+        async function loginUser(username, password) {
+            try {
+                showStatus('🔄 Logging in...', 'warning');
+                $('#loginBtn').prop('disabled', true).text('Logging in...');
+                
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'x-application-key': '',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                        invalidateOldestToken: true,
+                        epnSellerID: ''
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Login failed: ${response.status} ${response.statusText}. ${errorText}`);
+                }
+                
+                const loginResponse = await response.json();
+                accessToken = loginResponse.accessToken;
+                
+                showStatus('✓ Login successful!', 'success');
+                $('#loginBtn').prop('disabled', false).text('Login');
+                
+                // Show VIN form after successful login
+                setTimeout(() => {
+                    showVinForm();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                $('#loginBtn').prop('disabled', false).text('Login');
+                showStatus('✗ Login failed: ' + (error.message || 'Please check your credentials and try again.'), 'error');
+            }
+        }
+        
+        // VIN Decode Function
+        async function decodeVin(vin) {
+            if (!accessToken) {
+                showStatus('✗ Please login first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('🔄 Decoding VIN...', 'warning');
+                $('#decodeVinBtn').prop('disabled', true).text('Decoding...');
+                
+                const response = await fetch(`${API_BASE_URL}/api/vin/decode-vin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify({
+                        vins: [vin]
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`VIN decode failed: ${response.status} ${response.statusText}. ${errorText}`);
+                }
+                
+                const decodeResponse = await response.json();
+                
+                // Extract vehicle configuration from the first data item
+                if (decodeResponse.data && decodeResponse.data.length > 0) {
+                    vehicleConfig = decodeResponse.data[0].vehicleConfiguration;
+                    
+                    if (!vehicleConfig) {
+                        throw new Error('Vehicle configuration not found in VIN decode response');
+                    }
+                    
+                    showStatus('✓ VIN decoded successfully!', 'success');
+                    $('#decodeVinBtn').prop('disabled', false).text('Decode VIN');
+                    
+                    // Automatically fetch category tree after VIN decode
+                    setTimeout(() => {
+                        fetchCategoryTree();
+                    }, 1000);
+                } else {
+                    throw new Error('No vehicle data returned from VIN decode');
+                }
+                
+            } catch (error) {
+                console.error('VIN decode error:', error);
+                $('#decodeVinBtn').prop('disabled', false).text('Decode VIN');
+                showStatus('✗ VIN decode failed: ' + (error.message || 'Please check the VIN and try again.'), 'error');
+            }
+        }
+        
+        // Fetch Category Tree from API
+        async function fetchCategoryTree() {
+            if (!accessToken || !vehicleConfig) {
+                showStatus('✗ Please login and decode VIN first', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('🔄 Loading category tree...', 'warning');
+                
+                const response = await fetch(`${API_BASE_URL}/api/parts/category-tree`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`,
+                        'X-Vehicle-Configuration': vehicleConfig
+                    }
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Category tree fetch failed: ${response.status} ${response.statusText}. ${errorText}`);
+                }
+                
+                const categoryTree = await response.json();
+                catalogData = categoryTree;
+                
+                // Show tree view and build the tree
+                showTreeView();
+                buildTree(categoryTree);
+                
+            } catch (error) {
+                console.error('Category tree error:', error);
+                showStatus('✗ Failed to load category tree: ' + (error.message || 'Please try again.'), 'error');
+            }
+        }
+        
+        // Legacy function - kept for backward compatibility but not used
+        async function loadJSON() {
+            try {
+                const response = await fetch('Full-Categories.json');
+                const data = await response.json();
+                catalogData = data;
+                buildTree(data);
+            } catch (error) {
+                showStatus('⚠️ Cannot load JSON file automatically. Please select the Full-Categories.json file:', 'warning');
+                
+                const fileUpload = $('<div class="file-upload">')
+                    .append('<p>Select the Full-Categories.json file:</p>')
+                    .append('<input type="file" id="fileInput" accept=".json" />')
+                    .insertAfter('#statusMessage');
+                
+                $('#fileInput').on('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const startTime = Date.now();
+                        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                        
+                        // Show loader
+                        const loader = $(`
+                            <div class="upload-loader show">
+                                <div class="loader-content">
+                                    <div class="upload-spinner"></div>
+                                    <div class="upload-info">
+                                        <div>Uploading: <strong>${file.name}</strong></div>
+                                        <div style="font-size: 12px; opacity: 0.9;">Size: ${fileSizeMB} MB</div>
+                                        <div class="upload-duration">Elapsed: <span id="elapsed">0</span>s</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                        fileUpload.after(loader);
+                        
+                        // Update elapsed time
+                        const elapsedInterval = setInterval(() => {
+                            const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                            $('#elapsed').text(elapsed);
+                        }, 100);
+                        
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            clearInterval(elapsedInterval);
+                            const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+                            
+                            try {
+                                catalogData = JSON.parse(event.target.result);
+                                
+                                // Show success loader
+                                loader.html(`
+                                    <div class="loader-content">
+                                        <div style="font-size: 30px;">✓</div>
+                                        <div class="upload-info">
+                                            <div><strong>File loaded successfully!</strong></div>
+                                            <div style="font-size: 12px; opacity: 0.95; margin-top: 5px;">Total time: ${duration}s</div>
+                                        </div>
+                                    </div>
+                                `).addClass('upload-success').removeClass('show').addClass('show');
+                                
+                                setTimeout(() => {
+                                    loader.remove();
+                                    fileUpload.remove();
+                                    showStatus('✓ File loaded successfully in ' + duration + 's!', 'success');
+                                    buildTree(catalogData);
+                                }, 1500);
+                            } catch (error) {
+                                // Show error loader
+                                loader.html(`
+                                    <div class="loader-content">
+                                        <div style="font-size: 30px;">✗</div>
+                                        <div class="upload-info">
+                                            <div><strong>Error parsing file</strong></div>
+                                            <div style="font-size: 12px; opacity: 0.95; margin-top: 5px;">${error.message}</div>
+                                        </div>
+                                    </div>
+                                `).addClass('upload-error').removeClass('show').addClass('show');
+                                
+                                setTimeout(() => {
+                                    loader.remove();
+                                    showStatus('✗ Error parsing JSON file: ' + error.message, 'error');
+                                }, 2000);
+                            }
+                        };
+                        reader.readAsText(file);
+                    }
+                });
+            }
+        }
+        
+        function buildTree(data) {
+            const treeData = [];
+            
+            // Convert catalog data to jsTree format
+            data.data.forEach((category) => {
+                const categoryNode = {
+                    id: 'cat_' + category.categoryID,
+                    text: `<span class="tree-category">${category.categoryID}: ${escapeHtml(category.categoryName)} (${category.groups.length})</span>`,
+                    children: [],
+                    state: { opened: false }
+                };
+                
+                category.groups.forEach((group) => {
+                    const groupNode = {
+                        id: 'grp_' + group.groupID,
+                        text: `<span class="tree-group">${group.groupID}: ${escapeHtml(group.groupName)} (${group.catalogObjects.length})</span>`,
+                        children: [],
+                        state: { opened: false }
+                    };
+                    
+                    group.catalogObjects.forEach((item) => {
+                        const itemNode = {
+                            id: 'item_' + item.catalogObjectID,
+                            text: `<span class="tree-item">${item.catalogObjectID}: ${escapeHtml(item.catalogObjectName)}</span>`,
+                            icon: 'jstree-file',
+                            state: { selected: false }
+                        };
+                        groupNode.children.push(itemNode);
+                    });
+                    
+                    categoryNode.children.push(groupNode);
+                });
+                
+                treeData.push(categoryNode);
+            });
+            
+            // Initialize jsTree with optimized settings
+            $('#tree').jstree('destroy').jstree({
+                'core': {
+                    'data': treeData,
+                    'themes': {
+                        'name': 'default',
+                        'responsive': true,
+                        'stripes': false,
+                        'dots': true
+                    },
+                    'animation': 200,
+                    'multiple': false,
+                    'check_callback': true
+                },
+                'search': {
+                    'case_insensitive': true,
+                    'show_only_matches': true,
+                    'show_only_matches_children': true,
+                    'fuzzy': false
+                },
+                'plugins': ['search']
+            });
+            
+            treeInstance = $('#tree').jstree(true);
+            
+            // Add event handlers for expand/collapse optimization
+            $('#tree').on('before_open.jstree before_close.jstree', function(e, data) {
+                if (searchActive) {
+                    // Ensure animations are disabled during search
+                    $('#tree').jstree('set_animation', 0);
+                }
+            }).on('after_open.jstree after_close.jstree', function(e, data) {
+                if (searchActive) {
+                    // Keep animations disabled while search is active
+                    $('#tree').jstree('set_animation', 0);
+                } else {
+                    // Re-enable animations when not searching
+                    $('#tree').jstree('set_animation', 200);
+                }
+            });
+            
+            // Add click handler for catalog objects
+            $('#tree').on('select_node.jstree', function(e, data) {
+                const nodeId = data.node.id;
+                // Only handle catalog object nodes (items), not categories or groups
+                if (nodeId.startsWith('item_')) {
+                    const catalogObjectID = parseInt(nodeId.replace('item_', ''));
+                    selectedCatalogObjectID = catalogObjectID;
+                    fetchManufacturers(catalogObjectID);
+                }
+            });
+            
+            showStatus('✓ Catalog loaded successfully! (Total: ' + treeData.length + ' categories)', 'success');
+        }
+        
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+        
+        function showStatus(message, type) {
+            const statusEl = $('#statusMessage');
+            statusEl.text(message).addClass('show');
+            
+            if (type === 'success') {
+                statusEl.css('background', '#d4edda').css('border-color', '#28a745').css('color', '#155724');
+            } else if (type === 'warning') {
+                statusEl.css('background', '#fff3cd').css('border-color', '#ffc107').css('color', '#856404');
+            } else if (type === 'error') {
+                statusEl.css('background', '#f8d7da').css('border-color', '#f5c6cb').css('color', '#721c24');
+            }
+            
+            if (type === 'success') {
+                setTimeout(() => statusEl.removeClass('show'), 3000);
+            }
+        }
+        
+        // Fetch Manufacturers Function
+        async function fetchManufacturers(catalogObjectID) {
+            if (!accessToken || !vehicleConfig) {
+                showStatus('✗ Please login and decode VIN first', 'error');
+                return;
+            }
+            
+            try {
+                showManufacturerSelection();
+                $('#manufacturerLoading').show();
+                $('#manufacturerContent').hide();
+                
+                const url = `${API_BASE_URL}/api/parts/manufacturers?regionIDs=1&allManufacturers=true&includeOem=true&catalogObjectIDs=${catalogObjectID}`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Accept-Language': 'en-US',
+                        'X-Vehicle-Configuration': vehicleConfig
+                    }
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Manufacturers fetch failed: ${response.status} ${response.statusText}. ${errorText}`);
+                }
+                
+                const manufacturersResponse = await response.json();
+                manufacturers = manufacturersResponse.data;
+                
+                // Build all brands list and select all by default
+                allBrands = [];
+                selectedBrands.clear();
+                
+                manufacturers.forEach((manufacturer) => {
+                    manufacturer.brands.forEach((brand) => {
+                        allBrands.push({
+                            manufacturerID: manufacturer.manufacturerID,
+                            manufacturerName: manufacturer.manufacturerName,
+                            brandID: brand.brandID,
+                            brandName: brand.brandName
+                        });
+                        // Select all brands by default
+                        selectedBrands.add(brand.brandID);
+                    });
+                });
+                
+                renderManufacturers();
+                updateSelectedCount();
+                
+                $('#manufacturerLoading').hide();
+                $('#manufacturerContent').show();
+                showStatus('✓ Manufacturers loaded successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Manufacturers error:', error);
+                $('#manufacturerLoading').hide();
+                showStatus('✗ Failed to load manufacturers: ' + (error.message || 'Please try again.'), 'error');
+            }
+        }
+        
+        // Render Manufacturers Function
+        function renderManufacturers(filteredBrands) {
+            const manufacturerList = $('#manufacturerList');
+            const brandsToRender = filteredBrands || allBrands;
+            
+            // Group by manufacturer
+            const manufacturerMap = new Map();
+            
+            brandsToRender.forEach((brand) => {
+                if (!manufacturerMap.has(brand.manufacturerID)) {
+                    const manufacturer = manufacturers.find((m) => m.manufacturerID === brand.manufacturerID);
+                    if (manufacturer) {
+                        manufacturerMap.set(brand.manufacturerID, {
+                            manufacturer: manufacturer,
+                            brands: []
+                        });
+                    }
+                }
+                const entry = manufacturerMap.get(brand.manufacturerID);
+                if (entry) {
+                    entry.brands.push(brand);
+                }
+            });
+            
+            let html = '';
+            manufacturerMap.forEach(({ manufacturer, brands }) => {
+                const manufacturerKey = `mfr-${manufacturer.manufacturerID}`;
+                const selectedCount = brands.filter(b => selectedBrands.has(b.brandID)).length;
+                const totalCount = brands.length;
+                const isAllSelected = selectedCount === totalCount;
+                const isExpanded = !filteredBrands; // Expanded by default when not filtering
+                
+                html += `
+                    <div class="manufacturer-tree-item">
+                        <div class="manufacturer-header" data-manufacturer-id="${manufacturer.manufacturerID}">
+                            <button class="tree-toggle" data-target="${manufacturerKey}" aria-expanded="${isExpanded}">
+                                <span class="tree-icon">${isExpanded ? '▼' : '▶'}</span>
+                            </button>
+                            <label class="manufacturer-checkbox-label">
+                                <input 
+                                    type="checkbox" 
+                                    class="manufacturer-checkbox"
+                                    data-manufacturer-id="${manufacturer.manufacturerID}"
+                                    ${isAllSelected ? 'checked' : ''}
+                                />
+                                <span class="manufacturer-name">${escapeHtml(manufacturer.manufacturerName)}</span>
+                            </label>
+                            <span class="brand-count">${selectedCount}/${totalCount} brands</span>
+                        </div>
+                        <div class="brands-container ${isExpanded ? 'expanded' : ''}" id="${manufacturerKey}">
+                            <div class="brands-list">
+                                ${brands.map((brand) => `
+                                    <div class="brand-item">
+                                        <label>
+                                            <input 
+                                                type="checkbox" 
+                                                class="brand-checkbox"
+                                                data-brand-id="${brand.brandID}"
+                                                data-manufacturer-id="${brand.manufacturerID}"
+                                                ${selectedBrands.has(brand.brandID) ? 'checked' : ''}
+                                            />
+                                            <span class="brand-name">${escapeHtml(brand.brandName)}</span>
+                                        </label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            manufacturerList.html(html);
+            
+            // Attach event handlers
+            $('.tree-toggle').click(function() {
+                const target = $(this).data('target');
+                const container = $('#' + target);
+                const isExpanded = container.hasClass('expanded');
+                
+                container.toggleClass('expanded');
+                $(this).find('.tree-icon').text(isExpanded ? '▶' : '▼');
+                $(this).attr('aria-expanded', !isExpanded);
+            });
+            
+            $('.manufacturer-checkbox').change(function() {
+                const manufacturerID = $(this).data('manufacturer-id');
+                const isChecked = $(this).is(':checked');
+                const brandCheckboxes = $(`.brand-checkbox[data-manufacturer-id="${manufacturerID}"]`);
+                
+                brandCheckboxes.each(function() {
+                    const brandID = $(this).data('brand-id');
+                    $(this).prop('checked', isChecked);
+                    if (isChecked) {
+                        selectedBrands.add(brandID);
+                    } else {
+                        selectedBrands.delete(brandID);
+                    }
+                });
+                
+                updateSelectedCount();
+                updateManufacturerCheckbox(manufacturerID);
+            });
+            
+            $('.brand-checkbox').change(function() {
+                const brandID = $(this).data('brand-id');
+                const manufacturerID = $(this).data('manufacturer-id');
+                const isChecked = $(this).is(':checked');
+                
+                if (isChecked) {
+                    selectedBrands.add(brandID);
+                } else {
+                    selectedBrands.delete(brandID);
+                }
+                
+                updateSelectedCount();
+                updateManufacturerCheckbox(manufacturerID);
+            });
+        }
+        
+        // Update Manufacturer Checkbox State
+        function updateManufacturerCheckbox(manufacturerID) {
+            const brandCheckboxes = $(`.brand-checkbox[data-manufacturer-id="${manufacturerID}"]`);
+            const selectedCount = brandCheckboxes.filter(':checked').length;
+            const totalCount = brandCheckboxes.length;
+            const manufacturerCheckbox = $(`.manufacturer-checkbox[data-manufacturer-id="${manufacturerID}"]`);
+            
+            manufacturerCheckbox.prop('checked', selectedCount === totalCount);
+            manufacturerCheckbox.closest('.manufacturer-header').find('.brand-count').text(`${selectedCount}/${totalCount} brands`);
+        }
+        
+        // Update Selected Count
+        function updateSelectedCount() {
+            $('#selectedCount').text(`${selectedBrands.size} brand${selectedBrands.size !== 1 ? 's' : ''} selected`);
+        }
+        
+        // Select All Brands
+        function selectAllBrands() {
+            allBrands.forEach((brand) => {
+                selectedBrands.add(brand.brandID);
+            });
+            $('.brand-checkbox').prop('checked', true);
+            $('.manufacturer-checkbox').prop('checked', true);
+            updateSelectedCount();
+            allBrands.forEach((brand) => {
+                updateManufacturerCheckbox(brand.manufacturerID);
+            });
+        }
+        
+        // Deselect All Brands
+        function deselectAllBrands() {
+            selectedBrands.clear();
+            $('.brand-checkbox').prop('checked', false);
+            $('.manufacturer-checkbox').prop('checked', false);
+            updateSelectedCount();
+            allBrands.forEach((brand) => {
+                updateManufacturerCheckbox(brand.manufacturerID);
+            });
+        }
+        
+        // Filter Manufacturers
+        function filterManufacturers(searchTerm) {
+            if (!searchTerm) {
+                renderManufacturers();
+                return;
+            }
+            
+            const filtered = allBrands.filter((brand) => {
+                const manufacturer = manufacturers.find((m) => m.manufacturerID === brand.manufacturerID);
+                return (
+                    brand.brandName.toLowerCase().includes(searchTerm) ||
+                    (manufacturer && manufacturer.manufacturerName.toLowerCase().includes(searchTerm))
+                );
+            });
+            
+            renderManufacturers(filtered);
+        }
+        
+        // Fetch Parts Function
+        async function fetchParts() {
+            if (!accessToken || !vehicleConfig || !selectedCatalogObjectID) {
+                showStatus('✗ Missing required information', 'error');
+                return;
+            }
+            
+            if (selectedBrands.size === 0) {
+                showStatus('⚠️ Please select at least one brand', 'warning');
+                return;
+            }
+            
+            try {
+                showPartsView();
+                $('#partsLoading').show();
+                $('#partsContent').hide();
+                
+                // Build CCL object from selected manufacturers/brands
+                const cclDetails = [];
+                const selectedBrandsArray = Array.from(selectedBrands);
+                
+                allBrands.forEach((brand) => {
+                    if (selectedBrandsArray.includes(brand.brandID)) {
+                        cclDetails.push({
+                            manufacturerID: parseInt(brand.manufacturerID, 10),
+                            manufacturerBrandID: brand.brandID
+                        });
+                    }
+                });
+                
+                const ccl = {
+                    cclID: 1,
+                    name: 'virtual CCL',
+                    cclDetails: cclDetails
+                };
+                
+                const url = `${API_BASE_URL}/api/parts/get-part-fitments?catalogObjectIDs=${selectedCatalogObjectID}&regionID=1`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'X-Vehicle-Configuration': vehicleConfig,
+                        'Content-Type': 'application/json',
+                        'Accept-Language': 'en-US',
+                        'X-CCL': JSON.stringify(ccl)
+                    }
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Parts fetch failed: ${response.status} ${response.statusText}. ${errorText}`);
+                }
+                
+                const partsResponse = await response.json();
+                parts = partsResponse.data;
+                
+                renderParts();
+                
+                $('#partsLoading').hide();
+                $('#partsContent').show();
+                showStatus(`✓ Loaded ${parts.length} parts successfully!`, 'success');
+                
+            } catch (error) {
+                console.error('Parts error:', error);
+                $('#partsLoading').hide();
+                showStatus('✗ Failed to load parts: ' + (error.message || 'Please try again.'), 'error');
+            }
+        }
+        
+        // Render Parts Function
+        function renderParts() {
+            const partsList = $('#partsList');
+            
+            if (parts.length === 0) {
+                partsList.html('<p style="text-align: center; padding: 20px; color: #6c757d;">No parts found for the selected manufacturers.</p>');
+                return;
+            }
+            
+            let html = `
+                <table class="parts-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Part Number</th>
+                            <th>Part Name</th>
+                            <th>Manufacturer</th>
+                            <th>Brand</th>
+                            <th>Year Range</th>
+                            <th>Qty</th>
+                            <th>Condition</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            parts.forEach((part) => {
+                const imageUrl = part.partContents && part.partContents.length > 0 ? part.partContents[0].url : '';
+                const imageHtml = imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="Part image" class="part-image" onerror="this.style.display='none'" />` : '-';
+                
+                html += `
+                    <tr>
+                        <td>${imageHtml}</td>
+                        <td><span class="part-number">${escapeHtml(part.partNumber || '-')}</span></td>
+                        <td>${escapeHtml(part.catalogObject?.catalogObjectName || '-')}</td>
+                        <td><span class="part-manufacturer">${escapeHtml(part.manufacturer?.name || '-')}</span></td>
+                        <td>${escapeHtml(part.manufacturer?.brand?.name || '-')}</td>
+                        <td>${escapeHtml(part.fromYear || '')} - ${escapeHtml(part.toYear || '')}</td>
+                        <td>${escapeHtml(part.qty || '-')}</td>
+                        <td>${escapeHtml(part.condition || '-')}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
+            
+            partsList.html(html);
+        }
+    </script>
+</body>
+</html>
