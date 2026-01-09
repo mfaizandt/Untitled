@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parts Catalog Browser</title>
+    
+    <!-- External Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+    
+    <!-- Application Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h1>🚗 Vehicle Parts Catalog</h1>
+                    <p>Browse and search through our comprehensive parts database</p>
+                </div>
+                <button class="btn btn-secondary" id="logoutBtn" style="display: none; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3);">
+                    🚪 Logout
+                </button>
+            </div>
+        </div>
+        
+        <!-- Progress Summary Section -->
+        <div id="progressSummary" class="progress-summary hidden">
+            <div class="progress-summary-header">
+                <h3>📊 Progress Summary</h3>
+            </div>
+            <div class="progress-sections">
+                <!-- Vehicle Information Section -->
+                <div id="vehicleInfoSection" class="progress-section hidden">
+                    <div class="progress-section-title">🚗 Vehicle Information</div>
+                    <div id="vehicleInfoContent"></div>
+                    <button class="download-btn" id="downloadVinBtn" onclick="downloadVinResponse()">📥 Download VIN Response</button>
+                </div>
+                
+                <!-- Catalog Selection Section -->
+                <div id="catalogSelectionSection" class="progress-section hidden">
+                    <div class="progress-section-title">📋 Catalog Selection</div>
+                    <div id="catalogSelectionContent"></div>
+                    <button class="download-btn" id="downloadCategoryTreeBtn" onclick="downloadCategoryTree()">📥 Download Category Tree</button>
+                </div>
+                
+                <!-- Manufacturer Selection Section -->
+                <div id="manufacturerSelectionSection" class="progress-section hidden">
+                    <div class="progress-section-title">🏭 Manufacturer Selection</div>
+                    <div id="manufacturerSelectionContent"></div>
+                    <button class="download-btn" id="downloadManufacturersBtn" onclick="downloadManufacturers()">📥 Download Manufacturers</button>
+                </div>
+                
+                <!-- Parts Section -->
+                <div id="partsSection" class="progress-section hidden">
+                    <div class="progress-section-title">🔧 Parts</div>
+                    <div id="partsContent"></div>
+                    <button class="download-btn" id="downloadPartsBtn" onclick="downloadParts()">📥 Download Parts</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="controls-group">
+                <label>Quick Actions:</label>
+                <button class="btn btn-primary" id="expandAllBtn">Expand All</button>
+                <button class="btn btn-secondary" id="collapseAllBtn">Collapse All</button>
+            </div>
+            
+            <div class="controls-group">
+                <input type="text" id="search" placeholder="🔍 Search categories, groups, or parts...">
+                <span id="searchLoading" class="search-loading" style="display: none;">
+                    <span class="spinner"></span>Searching...
+                </span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div id="statusMessage" class="status-message"></div>
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <h2>🔐 Login Required</h2>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="loginBtn">Login</button>
+                </div>
+            </div>
+            
+            <!-- VIN Input Form -->
+            <div id="vinForm" class="auth-form hidden">
+                <h2>🚗 Enter Vehicle VIN</h2>
+                <div class="form-group">
+                    <label for="vin">Vehicle VIN (17 characters)</label>
+                    <input type="text" id="vin" placeholder="Enter vehicle VIN" maxlength="17">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="decodeVinBtn">Decode VIN</button>
+                </div>
+            </div>
+            
+            <!-- Manufacturer Selection Form -->
+            <div id="manufacturerSelection" class="auth-form hidden">
+                <div class="breadcrumb" id="manufacturerBreadcrumb">
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbVinFromManufacturers">VIN</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbTree">Catalog Tree</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item active">
+                        <span id="breadcrumbCatalogName">Select Manufacturers</span>
+                    </span>
+                </div>
+                <div class="nav-header">
+                    <div class="nav-title">
+                        <h2>🏭 Select Manufacturers</h2>
+                        <span class="subtitle" id="manufacturerSubtitle">Select manufacturers and brands for the catalog object</span>
+                    </div>
+                    <button class="btn btn-secondary" id="backToTreeBtn">← Back to Catalog</button>
+                </div>
+                <div id="manufacturerLoading" class="upload-loader" style="display: none;">
+                    <div class="loader-content">
+                        <div class="upload-spinner"></div>
+                        <div class="upload-info">Loading manufacturers...</div>
+                    </div>
+                </div>
+                <div id="manufacturerContent" style="display: none;">
+                    <div class="form-group">
+                        <label for="manufacturerSearch">Search Manufacturers or Brands:</label>
+                        <input type="text" id="manufacturerSearch" placeholder="Type to search..." />
+                    </div>
+                    <div class="selection-summary-bar" style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                        <span id="selectedCount">0 brands selected</span>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-secondary" id="selectAllBtn">Select All</button>
+                            <button class="btn btn-secondary" id="deselectAllBtn">Deselect All</button>
+                        </div>
+                    </div>
+                    <div id="manufacturerList" style="max-height: 500px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 5px; padding: 15px;"></div>
+                    <div class="form-actions" style="margin-top: 20px;">
+                        <button class="btn btn-primary" id="viewPartsBtn">View Parts →</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Parts Display Area -->
+            <div id="partsView" class="auth-form hidden">
+                <div class="breadcrumb" id="partsBreadcrumb">
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbVinFromParts">VIN</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbTreeFromParts">Catalog Tree</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbManufacturers">Manufacturers</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item active">
+                        <span id="breadcrumbPartsName">Parts List</span>
+                    </span>
+                </div>
+                <div class="nav-header">
+                    <div class="nav-title">
+                        <h2>🔧 Parts List</h2>
+                        <span class="subtitle" id="partsSubtitle">Parts for selected manufacturers</span>
+                    </div>
+                    <button class="btn btn-secondary" id="backToManufacturersBtn">← Back to Manufacturers</button>
+                </div>
+                <div id="partsLoading" class="upload-loader" style="display: none;">
+                    <div class="loader-content">
+                        <div class="upload-spinner"></div>
+                        <div class="upload-info">Loading parts...</div>
+                    </div>
+                </div>
+                <div id="partsContent">
+                    <div id="partsList" style="max-height: 600px; overflow-y: auto;"></div>
+                </div>
+            </div>
+            
+            <!-- Catalog Tree View -->
+            <div id="treeView" class="hidden">
+                <div class="breadcrumb" id="treeBreadcrumb">
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbVin">VIN</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item active">
+                        <span>Catalog Tree</span>
+                    </span>
+                </div>
+                <div class="nav-header">
+                    <div class="nav-title">
+                        <h2>📋 Parts Catalog</h2>
+                        <span class="subtitle">Select one or more catalog objects, then click Next</span>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" id="nextToManufacturersBtn" style="display: none;">Next →</button>
+                        <button class="btn btn-secondary" id="backToVinBtn">← Back to VIN</button>
+                    </div>
+                </div>
+                <div id="catalogSelectionInfo" style="padding: 10px; margin-bottom: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px; display: block;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <span id="selectedCatalogCount" style="font-weight: 600; color: #856404;">0 catalog objects selected</span>
+                        <span style="font-size: 12px; color: #856404;">💡 <strong>Tip:</strong> Hold <kbd style="background: #fff; padding: 2px 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 11px;">Ctrl</kbd> (Windows/Linux) or <kbd style="background: #fff; padding: 2px 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 11px;">Cmd</kbd> (Mac) and click to select multiple items</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="tree"></div>
+        </div>
+    </div>
+    
+    <!-- Application Modules (Order matters - load in dependency order) -->
+    <script src="js/modules/state.js"></script>
+    <script src="js/modules/utils.js"></script>
+    <script src="js/modules/tree.js"></script>
+    <script src="js/modules/ui.js"></script>
+    <script src="js/modules/api.js"></script>
+    <script src="js/modules/events.js"></script>
+    
+    <!-- Main Application -->
+    <script src="js/app.js"></script>
+</body>
+</html>
