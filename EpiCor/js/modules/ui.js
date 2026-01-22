@@ -1154,6 +1154,21 @@ const UI = (() => {
         }
     };
     
+    // Progress Modal Management
+    const showProgressModal = () => {
+        const modal = document.getElementById('automationProgressModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
+    };
+    
+    const hideProgressModal = () => {
+        const modal = document.getElementById('automationProgressModal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    };
+    
     return {
         showLoginForm,
         showVinForm,
@@ -1168,6 +1183,8 @@ const UI = (() => {
         updateProgressSummary,
         showPartDetailModal,
         hidePartDetailModal,
-        renderPartDetails
+        renderPartDetails,
+        showProgressModal,
+        hideProgressModal
     };
 })();

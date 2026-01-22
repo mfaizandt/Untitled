@@ -368,6 +368,59 @@ const Events = (() => {
                 }, 500);
             });
         }
+        
+        // Export All Parts button
+        const exportAllPartsBtn = document.getElementById('exportAllPartsBtn');
+        if (exportAllPartsBtn) {
+            exportAllPartsBtn.addEventListener('click', () => {
+                const confirmed = confirm(
+                    '⚠️ Warning: This is a heavy operation!\n\n' +
+                    'This will fetch all standardized part information from Epicore for every category catalog tree.\n\n' +
+                    'This process may take a significant amount of time and make multiple API calls.\n\n' +
+                    'Do you want to continue?'
+                );
+                if (confirmed) {
+                    Automation.startAutomatedExport();
+                }
+            });
+        }
+        
+        // Stop Automation button
+        const stopAutomationBtn = document.getElementById('stopAutomationBtn');
+        if (stopAutomationBtn) {
+            stopAutomationBtn.addEventListener('click', () => {
+                Automation.stopAutomation();
+            });
+        }
+        
+        // Close Progress Modal buttons
+        const closeProgressModal = document.getElementById('closeProgressModal');
+        const closeProgressModalBtn = document.getElementById('closeProgressModalBtn');
+        if (closeProgressModal) {
+            closeProgressModal.addEventListener('click', () => {
+                UI.hideProgressModal();
+            });
+        }
+        if (closeProgressModalBtn) {
+            closeProgressModalBtn.addEventListener('click', () => {
+                UI.hideProgressModal();
+            });
+        }
+        
+        // Close progress modal when clicking outside
+        const progressModal = document.getElementById('automationProgressModal');
+        if (progressModal) {
+            progressModal.addEventListener('click', (e) => {
+                if (e.target === progressModal) {
+                    // Only allow closing if automation is not running
+                    // Check if stop button is visible (means automation is running)
+                    const stopBtn = document.getElementById('stopAutomationBtn');
+                    if (stopBtn && stopBtn.style.display === 'none') {
+                        UI.hideProgressModal();
+                    }
+                }
+            });
+        }
     };
     
     const filterManufacturers = (searchTerm) => {

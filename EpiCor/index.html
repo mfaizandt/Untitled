@@ -178,6 +178,37 @@
                 </div>
             </div>
             
+            <!-- Automation Progress Modal -->
+            <div id="automationProgressModal" class="modal hidden">
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h2>🔄 Exporting Parts</h2>
+                        <button class="modal-close" id="closeProgressModal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="progressInfo">
+                            <p style="font-size: 16px; margin-bottom: 10px;">
+                                Processing group <strong><span id="currentGroupNum">0</span></strong> of <strong><span id="totalGroups">0</span></strong>
+                            </p>
+                            <p id="currentGroupName" style="color: #666; margin-bottom: 15px;"></p>
+                            <div style="background: #e9ecef; border-radius: 10px; height: 20px; margin-bottom: 15px; overflow: hidden;">
+                                <div id="progressBarFill" style="background: #28a745; height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+                            </div>
+                            <p style="margin-bottom: 15px;">
+                                Parts collected: <strong><span id="totalPartsCollected">0</span></strong>
+                            </p>
+                            <div id="progressLog" style="max-height: 200px; overflow-y: auto; margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 13px;">
+                                <!-- Status messages will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-danger" id="stopAutomationBtn">Stop</button>
+                        <button class="btn btn-primary" id="closeProgressModalBtn" style="display: none;">Close</button>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Parts Display Area -->
             <div id="partsView" class="auth-form hidden">
                 <div class="breadcrumb" id="partsBreadcrumb">
@@ -233,6 +264,7 @@
                     </div>
                     <div style="display: flex; gap: 10px;">
                         <button class="btn btn-primary" id="nextToManufacturersBtn" style="display: none;">Next →</button>
+                        <button class="btn btn-success" id="exportAllPartsBtn">📥 Export All Parts to CSV</button>
                         <button class="btn btn-secondary" id="backToVinBtn">← Back to VIN</button>
                     </div>
                 </div>
@@ -254,6 +286,7 @@
     <script src="js/modules/tree.js"></script>
     <script src="js/modules/ui.js"></script>
     <script src="js/modules/api.js"></script>
+    <script src="js/modules/automation.js"></script>
     <script src="js/modules/events.js"></script>
     
     <!-- Main Application -->
