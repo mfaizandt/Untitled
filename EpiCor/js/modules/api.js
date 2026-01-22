@@ -228,8 +228,23 @@ const API = (() => {
                 }
                 throw new Error(`Manufacturers fetch failed: ${response.status} ${response.statusText}. ${errorText}`);
             }
+            const autoSelectPrefixes = ['Advance/', 'Worldpac', 'OE+', 'Carquest/', 'AZ/'];
             
             const manufacturersResponse = await response.json();
+
+            let filteredManufacturers = [];
+            manufacturersResponse.data.forEach((manufacturer) => {
+                if (!manufacturer.manufacturerName) {
+                    return;
+                }
+                const manufacturerName = manufacturer.manufacturerName;
+                if (autoSelectPrefixes.some(prefix => manufacturerName.startsWith(prefix))) {
+                    filteredManufacturers.push(manufacturer);
+                }
+            });
+            manufacturersResponse.data = filteredManufacturers;
+
+
             AppState.setManufacturers(manufacturersResponse.data);
             AppState.setAPIResponse('manufacturers', manufacturersResponse);
             
