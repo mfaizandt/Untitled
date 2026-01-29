@@ -116,7 +116,7 @@ const API = (() => {
                 decodeBtn.textContent = 'Decode VIN';
                 
                 setTimeout(() => {
-                    API.fetchCategoryTree();
+                    API.fetchCategories();
                 }, 1000);
             } else {
                 throw new Error('No vehicle data returned from VIN decode');
@@ -131,7 +131,7 @@ const API = (() => {
         }
     };
     
-    const fetchCategoryTree = async () => {
+    const fetchCategories = async () => {
         if (!AppState.getToken() || !AppState.getVehicleConfig()) {
             Utils.showStatus('✗ Please login and decode VIN first', 'error');
             return;
@@ -141,34 +141,138 @@ const API = (() => {
             Utils.showStatus('🔄 Loading category tree...', 'warning');
             
             const baseURL = AppState.getAPIBaseURL();
-            const response = await fetch(`${baseURL}/api/parts/category-tree`, {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${AppState.getToken()}`,
+                'X-Vehicle-Configuration': AppState.getVehicleConfig(),
+                'Accept-Language': 'en-US'
+            };
+            
+            // First: Fetch categories
+            const categoriesResponse = await fetch(`${baseURL}/api/parts/category?categoryTreeID=1`, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${AppState.getToken()}`,
-                    'X-Vehicle-Configuration': AppState.getVehicleConfig()
-                }
+                headers: headers
             });
             
-            if (!response.ok) {
-                const errorText = await response.text();
-                // If token is invalid (401), clear session
-                if (response.status === 401) {
+            if (!categoriesResponse.ok) {
+                const errorText = await categoriesResponse.text();
+                if (categoriesResponse.status === 401) {
                     AppState.clearSession();
                     Utils.showStatus('✗ Session expired. Please login again.', 'error');
                     setTimeout(() => {
                         UI.showLoginForm();
                     }, 2000);
                 }
-                throw new Error(`Category tree fetch failed: ${response.status} ${response.statusText}. ${errorText}`);
+                throw new Error(`Categories fetch failed: ${categoriesResponse.status} ${categoriesResponse.statusText}. ${errorText}`);
             }
             
-            const categoryTree = await response.json();
-            AppState.setCatalogData(categoryTree);
-            AppState.setAPIResponse('categoryTree', categoryTree);
+            const categoriesData = await categoriesResponse.json();
             
-            Tree.buildTree(categoryTree);
+            // Second: Fetch category groups
+            const groupsResponse = await fetch(`${baseURL}/api/parts/category-group?categoryTreeID=1`, {
+                method: 'GET',
+                headers: headers
+            });
+            
+            if (!groupsResponse.ok) {
+                const errorText = await groupsResponse.text();
+                if (groupsResponse.status === 401) {
+                    AppState.clearSession();
+                    Utils.showStatus('✗ Session expired. Please login again.', 'error');
+                    setTimeout(() => {
+                        UI.showLoginForm();
+                    }, 2000);
+                }
+                throw new Error(`Category groups fetch failed: ${groupsResponse.status} ${groupsResponse.statusText}. ${errorText}`);
+            }
+            
+            const groupsData = await groupsResponse.json();
+            
+            // Extract groupIDs from groups response
+            const groupIDs = [];
+            if (groupsData.data && Array.isArray(groupsData.data)) {
+                groupsData.data.forEach((group) => {
+                    if (group.groupID && !groupIDs.includes(group.groupID)) {
+                        groupIDs.push(group.groupID);
+                    }
+                });
+            }
+            
+            // Third: Fetch catalog objects in batches of 10 groupIds
+            const batchSize = 5;
+            const objectsDataArray = [];
+            
+            for (let i = 0; i < groupIDs.length; i += batchSize) {
+                const batch = groupIDs.slice(i, i + batchSize);
+                const groupIdsParam = batch.map(id => `groupIDs=${id}`).join('&');
+                
+                const objectsResponse = await fetch(`${baseURL}/api/parts/category-group-catalog-object?${groupIdsParam}`, {
+                    method: 'GET',
+                    headers: headers
+                });
+                
+                if (!objectsResponse.ok) {
+                    const errorText = await objectsResponse.text();
+                    if (objectsResponse.status === 401) {
+                        AppState.clearSession();
+                        Utils.showStatus('✗ Session expired. Please login again.', 'error');
+                        setTimeout(() => {
+                            UI.showLoginForm();
+                        }, 2000);
+                    }
+                    throw new Error(`Catalog objects fetch failed: ${objectsResponse.status} ${objectsResponse.statusText}. ${errorText}`);
+                }
+                
+                const batchData = await objectsResponse.json();
+                objectsDataArray.push(batchData);
+            }
+            
+            // Merge all batch results
+            const objectsData = {
+                data: [],
+                vehicleContext: objectsDataArray[0]?.vehicleContext,
+                timestamp: objectsDataArray[0]?.timestamp
+            };
+            
+            objectsDataArray.forEach((batch) => {
+                if (batch.data && Array.isArray(batch.data)) {
+                    objectsData.data.push(...batch.data);
+                }
+            });
+            
+            console.log('Categories data:', categoriesData);
+            console.log('Groups data:', groupsData);
+            console.log('Objects data:', objectsData);
+            
+            // Merge data: Reconstruct tree with categories, groups, and catalog objects
+            const mergedCategoryTree = {
+                vehicleContext: categoriesData.vehicleContext || groupsData.vehicleContext,
+                data: [],
+                timestamp: categoriesData.timestamp || groupsData.timestamp
+            };
+            
+            // Build hierarchy: categories -> groups -> catalog objects
+            if (categoriesData.data && Array.isArray(categoriesData.data)) {
+                mergedCategoryTree.data = categoriesData.data.map((category) => {
+                    return {
+                        ...category,
+                        groups: (groupsData.data || [])
+                            .filter(group => group.categoryID === category.categoryID)
+                            .map((group) => {
+                                return {
+                                    ...group,
+                                    catalogObjects: (objectsData.data || []).filter(obj => obj.groupID === group.groupID) || []
+                                };
+                            })
+                    };
+                });
+            }
+            
+            AppState.setCatalogData(mergedCategoryTree);
+            AppState.setAPIResponse('categoryTree', mergedCategoryTree);
+            
+            Tree.buildTree(mergedCategoryTree);
             UI.updateProgressSummary();
             UI.showTreeView();
             
@@ -177,6 +281,8 @@ const API = (() => {
             Utils.showStatus('✗ Failed to load category tree: ' + (error.message || 'Please try again.'), 'error');
         }
     };
+
+    const fetchCategoryTree = fetchCategories;
     
     const fetchManufacturers = async (catalogObjectIDs, catalogGroupIDs) => {
         if (!AppState.getToken() || !AppState.getVehicleConfig()) {
@@ -541,6 +647,7 @@ const API = (() => {
     return {
         loginUser,
         decodeVin,
+        fetchCategories,
         fetchCategoryTree,
         fetchManufacturers,
         fetchParts,
