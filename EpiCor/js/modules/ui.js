@@ -101,6 +101,13 @@ const UI = (() => {
         document.getElementById('manufacturerSelection').style.display = 'block';
         document.getElementById('partsView').classList.add('hidden');
         
+        // Update back button text based on route
+        const backBtnText = document.getElementById('backToTreeBtnText');
+        if (backBtnText) {
+            const route = AppState.getSearchRoute();
+            backBtnText.textContent = route === 'search' ? '← Back to Search' : '← Back to Catalog';
+        }
+        
         if (AppState.getManufacturers().length > 0) {
             Utils.setDisplay('manufacturerLoading', 'none');
             Utils.setDisplay('manufacturerContent', 'block');
@@ -558,6 +565,9 @@ const UI = (() => {
         // Update Catalog Selection Section
         updateCatalogSelectionSection();
         
+        // Update Part Search Section
+        updatePartSearchSection();
+        
         // Update Manufacturer Selection Section
         updateManufacturerSelectionSection();
         
@@ -792,6 +802,57 @@ const UI = (() => {
             }
             section.classList.remove('hidden');
         } else {
+            section.classList.add('hidden');
+        }
+    };
+    
+    const updatePartSearchSection = () => {
+        const section = document.getElementById('partSearchSection');
+        const contentEl = document.getElementById('partSearchContent');
+        const selectedPartType = AppState.getSelectedPartType();
+        
+        if (section && selectedPartType) {
+            let partSearchHtml = '';
+            
+            partSearchHtml += `
+                <div class="progress-item">
+                    <span class="progress-label">Part Type:</span>
+                    <span class="progress-value">${Utils.escapeHtml(selectedPartType.partTypeName || 'N/A')}</span>
+                </div>
+            `;
+            
+            if (selectedPartType.aliasName) {
+                partSearchHtml += `
+                    <div class="progress-item">
+                        <span class="progress-label">Alias:</span>
+                        <span class="progress-value">${Utils.escapeHtml(selectedPartType.aliasName)}</span>
+                    </div>
+                `;
+            }
+            
+            if (selectedPartType.catalogObjectName) {
+                partSearchHtml += `
+                    <div class="progress-item">
+                        <span class="progress-label">Catalog Object:</span>
+                        <span class="progress-value">${Utils.escapeHtml(selectedPartType.catalogObjectName)}</span>
+                    </div>
+                `;
+            }
+            
+            if (selectedPartType.score !== undefined) {
+                partSearchHtml += `
+                    <div class="progress-item">
+                        <span class="progress-label">Match Score:</span>
+                        <span class="progress-value">${selectedPartType.score.toFixed(2)}%</span>
+                    </div>
+                `;
+            }
+            
+            if (contentEl) {
+                contentEl.innerHTML = partSearchHtml;
+            }
+            section.classList.remove('hidden');
+        } else if (section) {
             section.classList.add('hidden');
         }
     };
@@ -1169,12 +1230,116 @@ const UI = (() => {
         }
     };
     
+    // Parts Search View Management
+    const showVinNavigation = () => {
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('vinForm').classList.add('hidden');
+        document.getElementById('vinNavigation').classList.remove('hidden');
+        document.getElementById('treeView').classList.add('hidden');
+        document.getElementById('partsSearchView').classList.add('hidden');
+        document.getElementById('tree').style.display = 'none';
+        document.querySelector('.controls').style.display = 'none';
+    };
+    
+    const showPartsSearchView = () => {
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('vinForm').classList.add('hidden');
+        document.getElementById('vinNavigation').classList.add('hidden');
+        document.getElementById('treeView').classList.add('hidden');
+        document.getElementById('tree').style.display = 'none';
+        document.getElementById('manufacturerSelection').classList.add('hidden');
+        document.getElementById('partsView').classList.add('hidden');
+        document.getElementById('partsSearchView').classList.remove('hidden');
+        document.querySelector('.controls').style.display = 'none';
+        
+        // Focus on search input
+        setTimeout(() => {
+            const searchInput = document.getElementById('partsSearchInput');
+            if (searchInput) {
+                searchInput.focus();
+            }
+        }, 100);
+    };
+    
+    const renderSearchResults = (results) => {
+        const resultsContainer = document.getElementById('partsSearchResults');
+        if (!resultsContainer) return;
+        
+        if (!results || results.length === 0) {
+            resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">No parts found. Try a different search term.</div>';
+            return;
+        }
+        
+        let html = '';
+        results.forEach((partType) => {
+            // Keep HTML tags for highlighting (e.g., <strong>Oil</strong>)
+            const partTypeName = partType.partTypeName || 'Unknown';
+            const aliasName = partType.aliasName || '';
+            const catalogObjectName = partType.catalogObjectName || '';
+            const catalogObjectID = partType.catalogObjectID;
+            
+            html += `
+                <div class="search-result-item" data-part-type='${JSON.stringify(partType).replace(/'/g, "&apos;").replace(/"/g, "&quot;")}' style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s;">
+                    <div style="font-weight: 600; color: #333;">
+                        ${partTypeName}
+                        <style>
+                            .search-result-item strong { color: #e74c3c; font-weight: 700; }
+                        </style>
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                        ${aliasName ? `<div>📌 ${Utils.escapeHtml(aliasName)}</div>` : ''}
+                        <div>📦 ${Utils.escapeHtml(catalogObjectName)}</div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        resultsContainer.innerHTML = html;
+        
+        // Add hover effects
+        const items = resultsContainer.querySelectorAll('.search-result-item');
+        items.forEach((item) => {
+            item.addEventListener('mouseover', () => {
+                item.style.background = '#f8f9fa';
+            });
+            item.addEventListener('mouseout', () => {
+                item.style.background = 'white';
+            });
+            item.addEventListener('click', () => {
+                const partTypeStr = item.getAttribute('data-part-type');
+                if (partTypeStr) {
+                    try {
+                        const partType = JSON.parse(partTypeStr.replace(/&apos;/g, "'").replace(/&quot;/g, '"'));
+                        Events.handlePartTypeSelection(partType);
+                    } catch (e) {
+                        console.error('Error parsing part type:', e);
+                    }
+                }
+            });
+        });
+    };
+    
+    const showSearchLoading = () => {
+        document.getElementById('partsSearchLoading').style.display = 'block';
+        document.getElementById('partsSearchResultsContainer').style.display = 'none';
+    };
+    
+    const hideSearchLoading = () => {
+        document.getElementById('partsSearchLoading').style.display = 'none';
+    };
+    
+    const showSearchResults = () => {
+        document.getElementById('partsSearchResultsContainer').style.display = 'block';
+    };
+    
     return {
         showLoginForm,
         showVinForm,
+        showVinNavigation,
         showTreeView,
         showManufacturerSelection,
         showPartsView,
+        showPartsSearchView,
         renderManufacturers,
         updateSelectedCount,
         selectAllBrands,
@@ -1185,6 +1350,10 @@ const UI = (() => {
         hidePartDetailModal,
         renderPartDetails,
         showProgressModal,
-        hideProgressModal
+        hideProgressModal,
+        renderSearchResults,
+        showSearchLoading,
+        hideSearchLoading,
+        showSearchResults
     };
 })();

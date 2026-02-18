@@ -116,7 +116,7 @@ const API = (() => {
                 decodeBtn.textContent = 'Decode VIN';
                 
                 setTimeout(() => {
-                    API.fetchCategories();
+                    UI.showVinNavigation();
                 }, 1000);
             } else {
                 throw new Error('No vehicle data returned from VIN decode');
@@ -548,6 +548,76 @@ const API = (() => {
         }
     };
     
+    const searchParts = async (searchTerm) => {
+        try {
+            if (!AppState.getToken() || !AppState.getVehicleConfig()) {
+                Utils.showStatus('✗ Please login and decode VIN first', 'error');
+                return [];
+            }
+            
+            const baseURL = AppState.getAPIBaseURL();
+            const token = AppState.getToken();
+            const vehicleConfig = AppState.getVehicleConfig();
+            
+            // Build search parameters
+            const params = new URLSearchParams();
+            params.append('searchTerm', searchTerm);
+            params.append('searchPartTypes', 'true');
+            params.append('searchPartNumbers', 'false');
+            params.append('searchVins', 'false');
+            params.append('searchPlates', 'false');
+            params.append('searchYmme', 'false');
+            params.append('regionID', '1'); // USA
+            params.append('includeScore', 'true');
+            
+            // Build headers with vehicle configuration
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'X-Vehicle-Configuration': vehicleConfig,
+                'Accept-Language': 'en-US',
+                'x-application-key': ''
+            };
+            
+            const url = `${baseURL}/api/vehicle/search?${params.toString()}`;
+            console.log('Searching parts with term:', searchTerm);
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: headers
+            });
+            
+            if (response.status === 401) {
+                AppState.clearSession();
+                UI.showLoginForm();
+                throw new Error('Session expired. Please login again.');
+            }
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Parts search failed: ${response.status} ${response.statusText}. ${errorText}`);
+            }
+            
+            const searchResponse = await response.json();
+            console.log('Search response:', searchResponse);
+            
+            // Extract and return part types from response
+            const partTypes = searchResponse.partTypes || [];
+            
+            // Sort by score if available
+            if (partTypes.length > 0) {
+                partTypes.sort((a, b) => (b.score || 0) - (a.score || 0));
+            }
+            
+            return partTypes;
+            
+        } catch (error) {
+            console.error('Parts search error:', error);
+            throw error;
+        }
+    };
+
     const logout = () => {
         AppState.clearSession();
         
@@ -652,6 +722,7 @@ const API = (() => {
         fetchManufacturers,
         fetchParts,
         logout,
-        fetchPartDetails
+        fetchPartDetails,
+        searchParts
     };
 })();

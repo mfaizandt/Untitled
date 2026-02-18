@@ -30,10 +30,9 @@ const App = (() => {
                         UI.updateProgressSummary();
                     }, 100);
                     
-                    // If we have vehicle config, we can proceed to tree view
+                    // If we have vehicle config, show VIN navigation (choice between browse/search)
                     if (session.hasVehicleConfig) {
-                        // Automatically fetch category tree
-                        API.fetchCategoryTree();
+                        UI.showVinNavigation();
                         return;
                     }
                 }
@@ -41,8 +40,8 @@ const App = (() => {
             
             // If we have token but no vehicle config, show VIN form
             if (session.hasVehicleConfig) {
-                // We have vehicle config, fetch tree
-                API.fetchCategoryTree();
+                // We have vehicle config, show VIN navigation
+                UI.showVinNavigation();
             } else {
                 // Show VIN form to continue
                 UI.showVinForm();

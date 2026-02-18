@@ -15,6 +15,13 @@ const AppState = (() => {
         isSearching: false,
         searchActive: false,
         
+        // Parts Search state
+        partsSearchResults: [],
+        partsSearchInput: '',
+        selectedPartType: null,
+        partsSearchTimeout: null,
+        searchRoute: 'catalog', // 'search' or 'catalog' - tracks which route user came from
+        
         // Catalog Selection
         selectedCatalogObjects: [],
         selectedGroups: [],
@@ -57,8 +64,11 @@ const AppState = (() => {
         getParts: () => state.parts,
         getVINDecodeResponse: () => state.vinDecodeResponse,
         getAPIResponses: () => state.apiResponses,
-        getAutoAdvanceFlag: () => state.autoAdvanceToPartsScreen
-    };
+        getAutoAdvanceFlag: () => state.autoAdvanceToPartsScreen,
+        getPartsSearchResults: () => state.partsSearchResults,
+        getPartsSearchInput: () => state.partsSearchInput,
+        getSelectedPartType: () => state.selectedPartType,
+        getSearchRoute: () => state.searchRoute    };
     
     // Setter methods
     const setters = {
@@ -124,6 +134,25 @@ const AppState = (() => {
         addSelectedBrand: (brandId) => state.selectedBrands.add(brandId),
         removeSelectedBrand: (brandId) => state.selectedBrands.delete(brandId),
         setAPIResponse: (type, response) => state.apiResponses[type] = response,
+        setPartsSearchResults: (results) => state.partsSearchResults = results,
+        setPartsSearchInput: (input) => state.partsSearchInput = input,
+        setSearchRoute: (route) => state.searchRoute = route,
+        setSelectedPartType: (partType) => {
+            state.selectedPartType = partType;
+            if (partType) {
+                try {
+                    localStorage.setItem('epicor_selectedPartType', JSON.stringify(partType));
+                } catch (e) {
+                    console.warn('Failed to save selected part type to localStorage:', e);
+                }
+            } else {
+                try {
+                    localStorage.removeItem('epicor_selectedPartType');
+                } catch (e) {
+                    console.warn('Failed to remove selected part type from localStorage:', e);
+                }
+            }
+        },
         resetState: () => {
             state.selectedCatalogObjects = [];
             state.selectedGroups = [];
@@ -138,6 +167,7 @@ const AppState = (() => {
                 const token = localStorage.getItem('epicor_accessToken');
                 const vehicleConfig = localStorage.getItem('epicor_vehicleConfig');
                 const vinDecodeResponse = localStorage.getItem('epicor_vinDecodeResponse');
+                const selectedPartType = localStorage.getItem('epicor_selectedPartType');
                 
                 if (token) {
                     state.accessToken = token;
@@ -151,6 +181,13 @@ const AppState = (() => {
                         state.apiResponses.vinDecode = state.vinDecodeResponse;
                     } catch (e) {
                         console.warn('Failed to parse VIN decode response from localStorage:', e);
+                    }
+                }
+                if (selectedPartType) {
+                    try {
+                        state.selectedPartType = JSON.parse(selectedPartType);
+                    } catch (e) {
+                        console.warn('Failed to parse selected part type from localStorage:', e);
                     }
                 }
                 
@@ -170,12 +207,14 @@ const AppState = (() => {
                 localStorage.removeItem('epicor_accessToken');
                 localStorage.removeItem('epicor_vehicleConfig');
                 localStorage.removeItem('epicor_vinDecodeResponse');
+                localStorage.removeItem('epicor_selectedPartType');
             } catch (e) {
                 console.warn('Failed to clear session from localStorage:', e);
             }
             state.accessToken = null;
             state.vehicleConfig = null;
             state.vinDecodeResponse = null;
+            state.selectedPartType = null;
             state.apiResponses.vinDecode = null;
         }
     };

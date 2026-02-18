@@ -7,6 +7,8 @@
     
     <!-- External Libraries -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
     
@@ -45,6 +47,12 @@
                     <div class="progress-section-title">📋 Catalog Selection</div>
                     <div id="catalogSelectionContent"></div>
                     <button class="download-btn" id="downloadCategoryTreeBtn" onclick="downloadCategoryTree()">📥 Download Category Tree</button>
+                </div>
+                
+                <!-- Part Search Section -->
+                <div id="partSearchSection" class="progress-section hidden">
+                    <div class="progress-section-title">🔍 Part Search</div>
+                    <div id="partSearchContent"></div>
                 </div>
                 
                 <!-- Manufacturer Selection Section -->
@@ -109,6 +117,20 @@
                 </div>
             </div>
             
+            <!-- VIN Navigation (shown after successful VIN decode) -->
+            <div id="vinNavigation" class="auth-form hidden">
+                <h2>🚗 What would you like to do?</h2>
+                <p style="color: #666; margin-bottom: 20px;">Choose how to find parts for your vehicle</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <button class="btn btn-primary" id="browseByCategories" style="padding: 15px; font-size: 15px; height: auto; line-height: 1.5;">
+                        📋 Browse by Category<br><span style="font-size: 12px; opacity: 0.9;">Navigate through a hierarchical parts catalog</span>
+                    </button>
+                    <button class="btn btn-success" id="searchParts" style="padding: 15px; font-size: 15px; height: auto; line-height: 1.5;">
+                        🔍 Search Parts<br><span style="font-size: 12px; opacity: 0.9;">Quickly find parts by name or number</span>
+                    </button>
+                </div>
+            </div>
+            
             <!-- Manufacturer Selection Form -->
             <div id="manufacturerSelection" class="auth-form hidden">
                 <div class="breadcrumb" id="manufacturerBreadcrumb">
@@ -129,7 +151,7 @@
                         <h2>🏭 Select Manufacturers</h2>
                         <span class="subtitle" id="manufacturerSubtitle">Select manufacturers and brands for the catalog object</span>
                     </div>
-                    <button class="btn btn-secondary" id="backToTreeBtn">← Back to Catalog</button>
+                    <button class="btn btn-secondary" id="backToTreeBtn"><span id="backToTreeBtnText">← Back to Catalog</span></button>
                 </div>
                 <div id="manufacturerLoading" class="upload-loader" style="display: none;">
                     <div class="loader-content">
@@ -243,6 +265,39 @@
                 </div>
                 <div id="partsContent">
                     <div id="partsList" style="max-height: 600px; overflow-y: auto;"></div>
+                </div>
+            </div>
+            
+            <!-- Parts Search View -->
+            <div id="partsSearchView" class="hidden">
+                <div class="breadcrumb" id="searchBreadcrumb">
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbVinFromSearch">VIN</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item active">
+                        <span>Search Parts</span>
+                    </span>
+                </div>
+                <div class="nav-header">
+                    <div class="nav-title">
+                        <h2>🔍 Search Parts</h2>
+                        <span class="subtitle">Enter a part name, number, or description</span>
+                    </div>
+                    <button class="btn btn-secondary" id="backToVinFromSearchBtn">← Back to VIN</button>
+                </div>
+                <div style="padding: 20px; background: white; border-radius: 8px;">
+                    <div class="form-group">
+                        <label for="partsSearchInput">Search Parts:</label>
+                        <input type="text" id="partsSearchInput" placeholder="Type part name, number, or description..." style="width: 100%; padding: 10px; font-size: 14px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <div id="partsSearchResultsContainer" style="margin-top: 15px; display: none;">
+                        <div id="partsSearchResults" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; background: white;"></div>
+                    </div>
+                    <div id="partsSearchLoading" style="display: none; text-align: center; padding: 20px;">
+                        <div class="spinner" style="margin: 0 auto;"></div>
+                        <p>Searching parts...</p>
+                    </div>
                 </div>
             </div>
             

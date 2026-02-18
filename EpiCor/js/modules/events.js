@@ -104,6 +104,9 @@ const Events = (() => {
         // Setup part detail handlers first
         setupPartDetailHandlers();
         
+        // Setup parts search handlers
+        setupPartsSearchHandlers();
+        
         // Logout button
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
@@ -197,18 +200,25 @@ const Events = (() => {
                     return;
                 }
                 AppState.setAutoAdvanceFlag(true);
+                // Track that user came from catalog route
+                AppState.setSearchRoute('catalog');
                 const catalogObjectIDs = AppState.getSelectedCatalogObjects().map(obj => obj.catalogObjectID);
                 const catalogGroupIDs = AppState.getSelectedGroups().map(grp => grp.groupID);
                 API.fetchManufacturers(catalogObjectIDs, catalogGroupIDs);
             });
         }
         
-        // Back to Tree button
+        // Back to Tree/Search button (dynamic based on route)
         const backToTreeBtn = document.getElementById('backToTreeBtn');
         if (backToTreeBtn) {
             backToTreeBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                UI.showTreeView();
+                const route = AppState.getSearchRoute();
+                if (route === 'search') {
+                    UI.showPartsSearchView();
+                } else {
+                    UI.showTreeView();
+                }
             });
         }
         
@@ -441,7 +451,132 @@ const Events = (() => {
         Tree.search(searchTerm);
     };
     
+    // Parts Search Event Handlers
+    const setupPartsSearchHandlers = () => {
+        // Browse by Categories button
+        const browseByCategories = document.getElementById('browseByCategories');
+        if (browseByCategories) {
+            browseByCategories.addEventListener('click', () => {
+                API.fetchCategoryTree();
+            });
+        }
+        
+        // Search Parts button
+        const searchPartsBtn = document.getElementById('searchParts');
+        if (searchPartsBtn) {
+            searchPartsBtn.addEventListener('click', () => {
+                UI.showPartsSearchView();
+            });
+        }
+        
+        // Back to VIN from search
+        const backToVinFromSearchBtn = document.getElementById('backToVinFromSearchBtn');
+        if (backToVinFromSearchBtn) {
+            backToVinFromSearchBtn.addEventListener('click', () => {
+                UI.showVinNavigation();
+            });
+        }
+        
+        // Breadcrumb VIN from search
+        const breadcrumbVinFromSearch = document.getElementById('breadcrumbVinFromSearch');
+        if (breadcrumbVinFromSearch) {
+            breadcrumbVinFromSearch.addEventListener('click', (e) => {
+                e.preventDefault();
+                UI.showVinNavigation();
+            });
+        }
+        
+        // Parts search input with debouncing
+        const partsSearchInput = document.getElementById('partsSearchInput');
+        if (partsSearchInput) {
+            partsSearchInput.addEventListener('input', function() {
+                const searchTerm = this.value.trim();
+                
+                // Clear previous timeout
+                if (AppState.partsSearchTimeout) {
+                    clearTimeout(AppState.partsSearchTimeout);
+                }
+                
+                // If search term is empty, hide results
+                if (!searchTerm) {
+                    document.getElementById('partsSearchResultsContainer').style.display = 'none';
+                    return;
+                }
+                
+                // Show loading
+                UI.showSearchLoading();
+                
+                // Debounce search (500ms)
+                AppState.partsSearchTimeout = setTimeout(() => {
+                    performPartsSearch(searchTerm);
+                }, 500);
+            });
+        }
+    };
+    
+    const performPartsSearch = async (searchTerm) => {
+        try {
+            UI.showSearchLoading();
+            const results = await API.searchParts(searchTerm);
+            
+            UI.hideSearchLoading();
+            AppState.setPartsSearchResults(results);
+            
+            if (results && results.length > 0) {
+                UI.renderSearchResults(results);
+                UI.showSearchResults();
+            } else {
+                UI.renderSearchResults([]);
+                UI.showSearchResults();
+            }
+            
+        } catch (error) {
+            console.error('Search error:', error);
+            UI.hideSearchLoading();
+            Utils.showStatus('✗ Search failed: ' + (error.message || 'Unknown error'), 'error');
+        }
+    };
+    
+    const handlePartTypeSelection = (partType) => {
+        // Store selected part type
+        AppState.setSelectedPartType(partType);
+        
+        // Prepare to fetch manufacturers using the catalog object ID
+        const catalogObjectID = partType.catalogObjectID;
+        if (!catalogObjectID) {
+            Utils.showStatus('✗ Invalid part type - missing catalog object ID', 'error');
+            return;
+        }
+        
+        // Create a virtual catalog object for compatibility with existing flow
+        const catalogObject = {
+            catalogObjectID: catalogObjectID,
+            catalogObjectName: partType.catalogObjectName || partType.partTypeName,
+            category: 'Search Result',
+            group: 'Direct Search'
+        };
+        
+        // Set selected catalog object for the existing flow
+        AppState.setSelectedCatalogObjects([catalogObject]);
+        AppState.setAPIResponse('vinDecode', AppState.getVINDecodeResponse());
+        
+        // Set auto-advance flag to automatically proceed to parts selection
+        AppState.setAutoAdvanceFlag(true);
+        
+        // Track that user came from search route
+        AppState.setSearchRoute('search');
+        
+        // Hide search view to respect navigation
+        document.getElementById('partsSearchView').classList.add('hidden');
+        
+        // Fetch manufacturers for this catalog object
+        Utils.showStatus('🔄 Loading manufacturers...', 'warning');
+        API.fetchManufacturers([catalogObjectID], []);
+    };
+    
     return {
-        setupEventHandlers
+        setupEventHandlers,
+        setupPartsSearchHandlers,
+        handlePartTypeSelection
     };
 })();
