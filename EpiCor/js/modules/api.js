@@ -137,6 +137,9 @@ const API = (() => {
             return;
         }
         
+        // Clear positionIds when fetching categories (catalog browsing)
+        AppState.clearPositionIds();
+        
         try {
             Utils.showStatus('🔄 Loading category tree...', 'warning');
             
@@ -457,9 +460,15 @@ const API = (() => {
                 cclDetails: cclDetails
             };
             
+            // Get positionIds from AppState if available (from search results)
+            // If no positionId was found in search results, this will be an empty array
+            // and we'll fallback to using only catalogObjectIDs/catalogGroupIDs
+            const positionIds = AppState.getPositionIds();
+            
             console.log('Fetching parts with:', {
                 catalogObjectIDs,
                 catalogGroupIDs,
+                positionIds: positionIds.length > 0 ? positionIds : 'none (using catalogObjectIDs only)',
                 selectedBrandsCount: selectedBrandsArray.length,
                 cclDetailsCount: cclDetails.length,
                 ccl: ccl
@@ -473,6 +482,11 @@ const API = (() => {
             }
             if (catalogGroupIDs.length > 0) {
                 url += `&catalogGroupIDs=${catalogGroupIDs.join(',')}`;
+            }
+            // Only add positionIds parameter if we have positionIds from search results
+            // If missing, the API call will work with catalogObjectIDs/catalogGroupIDs only
+            if (positionIds.length > 0) {
+                url += `&positionIds=${positionIds.join(',')}`;
             }
             
             console.log('Parts API URL:', url);

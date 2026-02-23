@@ -21,6 +21,7 @@ const AppState = (() => {
         selectedPartType: null,
         partsSearchTimeout: null,
         searchRoute: 'catalog', // 'search' or 'catalog' - tracks which route user came from
+        positionIds: [], // Position IDs from search results for part-fitment fetching
         
         // Catalog Selection
         selectedCatalogObjects: [],
@@ -68,7 +69,9 @@ const AppState = (() => {
         getPartsSearchResults: () => state.partsSearchResults,
         getPartsSearchInput: () => state.partsSearchInput,
         getSelectedPartType: () => state.selectedPartType,
-        getSearchRoute: () => state.searchRoute    };
+        getSearchRoute: () => state.searchRoute,
+        getPositionIds: () => state.positionIds
+    };
     
     // Setter methods
     const setters = {
@@ -137,6 +140,8 @@ const AppState = (() => {
         setPartsSearchResults: (results) => state.partsSearchResults = results,
         setPartsSearchInput: (input) => state.partsSearchInput = input,
         setSearchRoute: (route) => state.searchRoute = route,
+        setPositionIds: (positionIds) => state.positionIds = Array.isArray(positionIds) ? positionIds : [],
+        clearPositionIds: () => state.positionIds = [],
         setSelectedPartType: (partType) => {
             state.selectedPartType = partType;
             if (partType) {
@@ -160,6 +165,7 @@ const AppState = (() => {
             state.selectedBrands.clear();
             state.parts = [];
             state.manufacturersMap = null;
+            state.positionIds = [];
         },
         // Load session from localStorage
         loadSession: () => {

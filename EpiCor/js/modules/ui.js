@@ -21,6 +21,13 @@ const UI = (() => {
     
     const showTreeView = () => {
         console.log('showTreeView called');
+        
+        // Clear positionIds when navigating to catalog tree view
+        // (positionIds are only valid when coming from search results)
+        AppState.clearPositionIds();
+        // Update route to catalog when showing tree view
+        AppState.setSearchRoute('catalog');
+        
         // Hide all other views
         document.getElementById('loginForm').classList.add('hidden');
         document.getElementById('vinForm').classList.add('hidden');
@@ -1277,6 +1284,7 @@ const UI = (() => {
             const aliasName = partType.aliasName || '';
             const catalogObjectName = partType.catalogObjectName || '';
             const catalogObjectID = partType.catalogObjectID;
+            const positionId = partType.positionId || partType.positionID;
             
             html += `
                 <div class="search-result-item" data-part-type='${JSON.stringify(partType).replace(/'/g, "&apos;").replace(/"/g, "&quot;")}' style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s;">
@@ -1289,6 +1297,7 @@ const UI = (() => {
                     <div style="font-size: 12px; color: #666; margin-top: 4px;">
                         ${aliasName ? `<div>📌 ${Utils.escapeHtml(aliasName)}</div>` : ''}
                         <div>📦 ${Utils.escapeHtml(catalogObjectName)}</div>
+                        ${positionId ? `<div style="margin-top: 4px;"><span style="background: #e3f2fd; color: #1976d2; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: 500;">🔢 Position ID: ${Utils.escapeHtml(String(positionId))}</span></div>` : ''}
                     </div>
                 </div>
             `;

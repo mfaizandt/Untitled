@@ -202,6 +202,8 @@ const Events = (() => {
                 AppState.setAutoAdvanceFlag(true);
                 // Track that user came from catalog route
                 AppState.setSearchRoute('catalog');
+                // Clear positionIds when switching to catalog route
+                AppState.clearPositionIds();
                 const catalogObjectIDs = AppState.getSelectedCatalogObjects().map(obj => obj.catalogObjectID);
                 const catalogGroupIDs = AppState.getSelectedGroups().map(grp => grp.groupID);
                 API.fetchManufacturers(catalogObjectIDs, catalogGroupIDs);
@@ -457,6 +459,8 @@ const Events = (() => {
         const browseByCategories = document.getElementById('browseByCategories');
         if (browseByCategories) {
             browseByCategories.addEventListener('click', () => {
+                // Clear positionIds when switching to catalog browsing
+                AppState.clearPositionIds();
                 API.fetchCategoryTree();
             });
         }
@@ -497,11 +501,15 @@ const Events = (() => {
                     clearTimeout(AppState.partsSearchTimeout);
                 }
                 
-                // If search term is empty, hide results
+                // If search term is empty, hide results and clear positionIds
                 if (!searchTerm) {
                     document.getElementById('partsSearchResultsContainer').style.display = 'none';
+                    AppState.clearPositionIds();
                     return;
                 }
+                
+                // Clear positionIds when starting a new search
+                AppState.clearPositionIds();
                 
                 // Show loading
                 UI.showSearchLoading();
@@ -546,6 +554,18 @@ const Events = (() => {
         if (!catalogObjectID) {
             Utils.showStatus('✗ Invalid part type - missing catalog object ID', 'error');
             return;
+        }
+        
+        // Extract and store positionId if available
+        const positionId = partType.positionId || partType.positionID;
+        if (positionId) {
+            AppState.setPositionIds([positionId]);
+            console.log('Stored positionId from search result:', positionId);
+        } else {
+            // Clear positionIds if not present in this result
+            // This ensures we fallback to using only catalogObjectIDs in fetchParts
+            AppState.clearPositionIds();
+            console.log('No positionId found in search result, will use catalogObjectIDs only');
         }
         
         // Create a virtual catalog object for compatibility with existing flow
