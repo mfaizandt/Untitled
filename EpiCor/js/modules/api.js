@@ -486,7 +486,7 @@ const API = (() => {
             // Only add positionIds parameter if we have positionIds from search results
             // If missing, the API call will work with catalogObjectIDs/catalogGroupIDs only
             if (positionIds.length > 0) {
-                url += `&positionIds=${positionIds.join(',')}`;
+                url += `&positionIDs=${positionIds.join(',')}`;
             }
             
             console.log('Parts API URL:', url);
