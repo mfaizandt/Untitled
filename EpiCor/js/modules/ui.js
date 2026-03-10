@@ -216,11 +216,28 @@ const UI = (() => {
             return;
         }
         
+        // Sort manufacturers: defaults first, then alphabetically
+        const defaultBrands = AppState.getDefaultSelectedBrands();
+        const sortedManufacturers = Array.from(manufacturerMap.entries())
+            .sort(([, a], [, b]) => {
+                // Check if manufacturer has any default brands
+                const aHasDefaults = a.brands.some(brand => defaultBrands.has(brand.brandID));
+                const bHasDefaults = b.brands.some(brand => defaultBrands.has(brand.brandID));
+                
+                // Defaults first
+                if (aHasDefaults !== bHasDefaults) {
+                    return bHasDefaults - aHasDefaults;
+                }
+                
+                // Then alphabetically by name
+                return a.manufacturer.manufacturerName.localeCompare(b.manufacturer.manufacturerName);
+            });
+        
         let html = '';
-        manufacturerMap.forEach(({ manufacturer, brands }) => {
+        sortedManufacturers.forEach(([, { manufacturer, brands }]) => {
             const manufacturerKey = `mfr-${manufacturer.manufacturerID}`;
             const selectedCount = brands.filter(b => {
-                const brandID = parseInt(b.brandID, 10);
+                const brandID = b.brandID;
                 return AppState.getSelectedBrands().has(brandID);
             }).length;
             const totalCount = brands.length;
@@ -247,7 +264,7 @@ const UI = (() => {
                     <div class="brands-container ${isExpanded ? 'expanded' : ''}" id="${manufacturerKey}">
                         <div class="brands-list">
                             ${brands.map((brand) => {
-                                const brandID = parseInt(brand.brandID, 10);
+                                const brandID = brand.brandID;
                                 return `
                                 <div class="brand-item">
                                     <label>
@@ -271,6 +288,7 @@ const UI = (() => {
         
         manufacturerList.innerHTML = html;
         attachManufacturerHandlers();
+        attachResetButtonHandler();
     };
     
     const attachManufacturerHandlers = () => {
@@ -295,7 +313,7 @@ const UI = (() => {
                 const brandCheckboxes = document.querySelectorAll(`.brand-checkbox[data-manufacturer-id="${manufacturerID}"]`);
                 
                 brandCheckboxes.forEach(cb => {
-                    const brandID = parseInt(cb.dataset.brandId);
+                    const brandID = cb.dataset.brandId;
                     cb.checked = isChecked;
                     if (isChecked) {
                         AppState.addSelectedBrand(brandID);
@@ -312,13 +330,23 @@ const UI = (() => {
         // Brand checkbox handlers
         document.querySelectorAll('.brand-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
-                const brandID = parseInt(this.dataset.brandId);
+                const brandID = this.dataset.brandId;
                 const manufacturerID = parseInt(this.dataset.manufacturerId);
                 
-                if (this.checked) {
-                    AppState.addSelectedBrand(brandID);
-                } else {
+                // Check if this would result in no brands selected
+                if (!this.checked) {
+                    const selectedBrands = AppState.getSelectedBrands();
+                    const remainingSelected = Array.from(selectedBrands).filter(id => id !== brandID).length;
+                    
+                    if (remainingSelected === 0) {
+                        Utils.showStatus('⚠️ Please keep at least one brand selected', 'warning');
+                        this.checked = true; // Keep it checked
+                        return;
+                    }
+                    
                     AppState.removeSelectedBrand(brandID);
+                } else {
+                    AppState.addSelectedBrand(brandID);
                 }
                 
                 updateManufacturerCheckbox(manufacturerID);
@@ -376,6 +404,33 @@ const UI = (() => {
         AppState.getAllBrands().forEach((brand) => {
             updateManufacturerCheckbox(brand.manufacturerID);
         });
+    };
+    
+    const resetManufacturersToDefaults = () => {
+        AppState.resetSelectedBrands();
+        const defaultBrands = AppState.getDefaultSelectedBrands();
+        
+        // Update all checkboxes
+        document.querySelectorAll('.brand-checkbox').forEach(cb => {
+            const brandID = cb.dataset.brandId;
+            cb.checked = defaultBrands.has(brandID);
+        });
+        
+        document.querySelectorAll('.manufacturer-checkbox').forEach(cb => {
+            const manufacturerID = parseInt(cb.dataset.manufacturerId);
+            updateManufacturerCheckbox(manufacturerID);
+        });
+        
+        updateSelectedCount();
+        Utils.showStatus('✓ Reset to default manufacturers', 'success');
+    };
+    
+    // Add event listener for Reset to Defaults button
+    const attachResetButtonHandler = () => {
+        const resetBtn = document.getElementById('resetDefaultsBtn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', resetManufacturersToDefaults);
+        }
     };
     
     // Parts Display
@@ -878,7 +933,7 @@ const UI = (() => {
             
             // Group selected brands by manufacturer
             allBrands.forEach((brand) => {
-                const brandID = parseInt(brand.brandID, 10);
+                const brandID = brand.brandID;
                 if (selectedBrands.has(brandID)) {
                     const brandManufacturerID = parseInt(brand.manufacturerID, 10);
                     
@@ -1353,6 +1408,7 @@ const UI = (() => {
         updateSelectedCount,
         selectAllBrands,
         deselectAllBrands,
+        resetManufacturersToDefaults,
         renderParts,
         updateProgressSummary,
         showPartDetailModal,

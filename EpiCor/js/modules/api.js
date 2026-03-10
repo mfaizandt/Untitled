@@ -307,7 +307,7 @@ const API = (() => {
             Utils.setDisplay('manufacturerContent', 'none');
             
             const baseURL = AppState.getAPIBaseURL();
-            let url = `${baseURL}/api/parts/manufacturers?regionIDs=1&allManufacturers=true&includeOem=true`;
+            let url = `${baseURL}/api/parts/manufacturers?regionIDs=1&allManufacturers=false&includeOem=true`;
             
             if (objIds.length > 0) {
                 url += `&catalogObjectIDs=${objIds.join(',')}`;
@@ -337,34 +337,30 @@ const API = (() => {
                 }
                 throw new Error(`Manufacturers fetch failed: ${response.status} ${response.statusText}. ${errorText}`);
             }
-            const autoSelectPrefixes = ['Advance/', 'Worldpac', 'OE+', 'Carquest/', 'AZ/'];
+            const autoSelectPrefixes = ['Advance/', 'Worldpac', 'OE+', 'Carquest/', 'AZ/', 'Carquest'];
             
             const manufacturersResponse = await response.json();
 
-            let filteredManufacturers = [];
+            // Show ALL manufacturers instead of filtering - let user choose
+            AppState.setManufacturers(manufacturersResponse.data);
+            AppState.setAPIResponse('manufacturers', manufacturersResponse);
+            
+            // Build brands list with manufacturer info and identify default selected brands
+            const allBrands = [];
+            const defaultSelectedBrands = new Set();
+            const selectedBrands = new Set();
+            
             manufacturersResponse.data.forEach((manufacturer) => {
                 if (!manufacturer.manufacturerName) {
                     return;
                 }
+                
                 const manufacturerName = manufacturer.manufacturerName;
-                if (autoSelectPrefixes.some(prefix => manufacturerName.startsWith(prefix))) {
-                    filteredManufacturers.push(manufacturer);
-                }
-            });
-            manufacturersResponse.data = filteredManufacturers;
-
-
-            AppState.setManufacturers(manufacturersResponse.data);
-            AppState.setAPIResponse('manufacturers', manufacturersResponse);
-            
-            // Build brands list with manufacturer info
-            const allBrands = [];
-            const selectedBrands = new Set();
-            
-            manufacturersResponse.data.forEach((manufacturer) => {
+                const hasAutoSelectPrefix = autoSelectPrefixes.some(prefix => manufacturerName.startsWith(prefix));
+                
                 manufacturer.brands.forEach((brand) => {
-                    // Ensure brandID is stored as a number for consistency
-                    const brandID = parseInt(brand.brandID, 10);
+                    // Ensure brandID is stored as a string (it's a hash, not numeric)
+                    const brandID = brand.brandID;
                     const manufacturerID = parseInt(manufacturer.manufacturerID, 10);
                     
                     allBrands.push({
@@ -373,12 +369,17 @@ const API = (() => {
                         brandID: brandID,
                         brandName: brand.brandName
                     });
-                    // Store as number to match UI selections
-                    selectedBrands.add(brandID);
+                    
+                    // Mark brands from auto-select manufacturers as default selected
+                    if (hasAutoSelectPrefix) {
+                        defaultSelectedBrands.add(brandID);
+                        selectedBrands.add(brandID);
+                    }
                 });
             });
             
             AppState.setAllBrands(allBrands);
+            AppState.setDefaultSelectedBrands(defaultSelectedBrands);
             AppState.setSelectedBrands(selectedBrands);
             
             UI.renderManufacturers();
@@ -422,7 +423,7 @@ const API = (() => {
         }
         
         if (AppState.getSelectedBrands().size === 0) {
-            Utils.showStatus('⚠️ Please select at least one brand', 'warning');
+            Utils.showStatus('⚠️ Please select at least one brand/manufacturer', 'warning');
             return;
         }
         
@@ -436,12 +437,10 @@ const API = (() => {
             // Build CCL object from selected manufacturers/brands
             const cclDetails = [];
             const selectedBrandsArray = Array.from(AppState.getSelectedBrands());
-            
-            // Ensure brand IDs are compared as numbers
-            const selectedBrandsSet = new Set(selectedBrandsArray.map(id => parseInt(id, 10)));
+            const selectedBrandsSet = new Set(selectedBrandsArray);
             
             AppState.getAllBrands().forEach((brand) => {
-                const brandID = parseInt(brand.brandID, 10);
+                const brandID = brand.brandID;
                 if (selectedBrandsSet.has(brandID)) {
                     cclDetails.push({
                         manufacturerID: parseInt(brand.manufacturerID, 10),

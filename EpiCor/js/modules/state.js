@@ -35,6 +35,7 @@ const AppState = (() => {
         manufacturers: [],
         allBrands: [],
         selectedBrands: new Set(),
+        defaultSelectedBrands: new Set(), // Brands that are pre-selected by default (auto-select prefixes)
         
         // Parts
         parts: [],
@@ -62,6 +63,7 @@ const AppState = (() => {
         getManufacturers: () => state.manufacturers,
         getAllBrands: () => state.allBrands,
         getSelectedBrands: () => state.selectedBrands,
+        getDefaultSelectedBrands: () => state.defaultSelectedBrands,
         getParts: () => state.parts,
         getVINDecodeResponse: () => state.vinDecodeResponse,
         getAPIResponses: () => state.apiResponses,
@@ -114,6 +116,10 @@ const AppState = (() => {
         setManufacturers: (mfrs) => state.manufacturers = mfrs,
         setAllBrands: (brands) => state.allBrands = brands,
         setSelectedBrands: (brands) => state.selectedBrands = brands,
+        setDefaultSelectedBrands: (brands) => state.defaultSelectedBrands = brands,
+        resetSelectedBrands: () => {
+            state.selectedBrands = new Set(state.defaultSelectedBrands);
+        },
         setParts: (parts) => state.parts = parts,
         setVINDecodeResponse: (response) => {
             state.vinDecodeResponse = response;

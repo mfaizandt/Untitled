@@ -272,6 +272,13 @@ const Events = (() => {
             });
         }
         
+        const resetDefaultsBtn = document.getElementById('resetDefaultsBtn');
+        if (resetDefaultsBtn) {
+            resetDefaultsBtn.addEventListener('click', () => {
+                UI.resetManufacturersToDefaults();
+            });
+        }
+        
         const viewPartsBtn = document.getElementById('viewPartsBtn');
         if (viewPartsBtn) {
             viewPartsBtn.addEventListener('click', () => {
