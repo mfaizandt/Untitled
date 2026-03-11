@@ -627,7 +627,18 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    user-select: none;
+}
+
+.progress-summary-header:hover {
+    background: #f8f9fa;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 0;
     padding-bottom: 10px;
     border-bottom: 1px solid #e9ecef;
 }
@@ -636,6 +647,19 @@ body {
     margin: 0;
     color: #667eea;
     font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toggle-icon {
+    display: inline-block;
+    transition: transform 0.3s ease;
+    font-size: 0.9em;
+}
+
+.toggle-icon.collapsed {
+    transform: rotate(-90deg);
 }
 
 .progress-sections {

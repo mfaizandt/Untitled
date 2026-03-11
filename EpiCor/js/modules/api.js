@@ -58,6 +58,43 @@ const API = (() => {
         }
     };
     
+    const validateTokenViaVinDecode = async (vin) => {
+        // Silent token validation without user-facing messages
+        // Returns Promise<boolean> - true if token is valid, false if 401
+        try {
+            const baseURL = AppState.getAPIBaseURL();
+            const response = await fetch(`${baseURL}/api/vin/decode-vin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${AppState.getToken()}`
+                },
+                body: JSON.stringify({ vins: [vin] })
+            });
+            
+            // Return true if 200, false if 401
+            if (response.status === 401) {
+                console.warn('🔐 Token validation failed: 401 Unauthorized');
+                return false;
+            }
+            
+            if (response.ok) {
+                console.log('🔐 Token validation successful');
+                return true;
+            }
+            
+            // For other errors, assume network issues - return true to allow continue
+            console.warn('🔐 Token validation returned status:', response.status);
+            return true;
+            
+        } catch (error) {
+            console.error('Token validation network error:', error);
+            // Network error - allow user to continue (they'll get proper error on next action)
+            return true;
+        }
+    };
+
     const decodeVin = async (vin) => {
         if (!AppState.getToken()) {
             Utils.showStatus('✗ Please login first', 'error');
@@ -851,6 +888,7 @@ const API = (() => {
     
     return {
         loginUser,
+        validateTokenViaVinDecode,
         decodeVin,
         fetchCategories,
         fetchCategoryTree,

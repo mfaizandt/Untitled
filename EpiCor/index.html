@@ -30,9 +30,9 @@
         </div>
         
         <!-- Progress Summary Section -->
-        <div id="progressSummary" class="progress-summary hidden">
+        <div id="progressSummary" class="progress-summary">
             <div class="progress-summary-header">
-                <h3>📊 Progress Summary</h3>
+                <h3>📊 Progress Summary <span class="toggle-icon">▼</span></h3>
             </div>
             <div class="progress-sections">
                 <!-- Vehicle Information Section -->
@@ -71,20 +71,7 @@
             </div>
         </div>
         
-        <div class="controls">
-            <div class="controls-group">
-                <label>Quick Actions:</label>
-                <button class="btn btn-primary" id="expandAllBtn">Expand All</button>
-                <button class="btn btn-secondary" id="collapseAllBtn">Collapse All</button>
-            </div>
-            
-            <div class="controls-group">
-                <input type="text" id="search" placeholder="🔍 Search categories, groups, or parts...">
-                <span id="searchLoading" class="search-loading" style="display: none;">
-                    <span class="spinner"></span>Searching...
-                </span>
-            </div>
-        </div>
+
         
         <div class="content">
             <div id="statusMessage" class="status-message"></div>
@@ -119,9 +106,19 @@
             
             <!-- VIN Navigation (shown after successful VIN decode) -->
             <div id="vinNavigation" class="auth-form hidden">
-                <h2>🚗 What would you like to do?</h2>
-                <p style="color: #666; margin-bottom: 20px;">Choose how to find parts for your vehicle</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="breadcrumb" id="vinNavigationBreadcrumb">
+                    <span class="breadcrumb-item active">
+                        <span>VIN</span>
+                    </span>
+                </div>
+                <div class="nav-header">
+                    <div class="nav-title">
+                        <h2>🚗 What would you like to do?</h2>
+                        <span class="subtitle">Choose how to find parts for your vehicle</span>
+                    </div>
+                    <button class="btn btn-secondary" id="changeVinBtn">← Change VIN</button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px;">
                     <button class="btn btn-primary" id="browseByCategories" style="padding: 15px; font-size: 15px; height: auto; line-height: 1.5;">
                         📋 Browse by Category<br><span style="font-size: 12px; opacity: 0.9;">Navigate through a hierarchical parts catalog</span>
                     </button>
@@ -259,7 +256,10 @@
                         <h2>🏭 Select Manufacturers</h2>
                         <span class="subtitle" id="manufacturerSubtitle">Select manufacturers and brands for the catalog object</span>
                     </div>
-                    <button class="btn btn-secondary" id="backToTreeBtn"><span id="backToTreeBtnText">← Back to Catalog</span></button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" id="viewPartsBtn">View Parts →</button>
+                        <button class="btn btn-secondary" id="backToTreeBtn"><span id="backToTreeBtnText">← Back to Catalog</span></button>
+                    </div>
                 </div>
                 <div id="manufacturerLoading" class="upload-loader" style="display: none;">
                     <div class="loader-content">
@@ -281,9 +281,6 @@
                         </div>
                     </div>
                     <div id="manufacturerList" style="max-height: 500px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 5px; padding: 15px;"></div>
-                    <div class="form-actions" style="margin-top: 20px;">
-                        <button class="btn btn-primary" id="viewPartsBtn">View Parts →</button>
-                    </div>
                 </div>
             </div>
             
@@ -432,6 +429,18 @@
                         <button class="btn btn-secondary" id="backToVinBtn">← Back to VIN</button>
                     </div>
                 </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button class="btn btn-primary" id="expandAllBtn">Expand All</button>
+                    <button class="btn btn-secondary" id="collapseAllBtn">Collapse All</button>
+                </div>
+                <div class="controls">
+                    <div class="controls-group">
+                        <input type="text" id="search" placeholder="🔍 Search categories, groups, or parts...">
+                        <span id="searchLoading" class="search-loading" style="display: none;">
+                            <span class="spinner"></span>Searching...
+                        </span>
+                    </div>
+                </div>
                 <div id="catalogSelectionInfo" style="padding: 10px; margin-bottom: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px; display: block;">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <span id="selectedCatalogCount" style="font-weight: 600; color: #856404;">0 catalog objects selected</span>
@@ -447,6 +456,7 @@
     <!-- Application Modules (Order matters - load in dependency order) -->
     <script src="js/modules/state.js"></script>
     <script src="js/modules/utils.js"></script>
+    <script src="js/modules/breadcrumbs.js"></script>
     <script src="js/modules/tree.js"></script>
     <script src="js/modules/ui.js"></script>
     <script src="js/modules/api.js"></script>

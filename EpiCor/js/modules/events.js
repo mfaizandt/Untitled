@@ -208,7 +208,10 @@ const Events = (() => {
         if (fetchPartsOption) {
             fetchPartsOption.addEventListener('click', () => {
                 AppState.setAutoAdvanceFlag(true);
-                AppState.setSearchRoute('catalog');
+                // Don't override the search route - preserve it if it was already set to 'search'
+                if (AppState.getSearchRoute() !== 'search') {
+                    AppState.setSearchRoute('catalog');
+                }
                 AppState.clearPositionIds();
                 const catalogObjectIDs = AppState.getSelectedCatalogObjects().map(obj => obj.catalogObjectID);
                 const catalogGroupIDs = AppState.getSelectedGroups().map(grp => grp.groupID);
@@ -599,6 +602,14 @@ const Events = (() => {
     
     // Parts Search Event Handlers
     const setupPartsSearchHandlers = () => {
+        // Change VIN button
+        const changeVinBtn = document.getElementById('changeVinBtn');
+        if (changeVinBtn) {
+            changeVinBtn.addEventListener('click', () => {
+                UI.showVinForm();
+            });
+        }
+        
         // Browse by Categories button
         const browseByCategories = document.getElementById('browseByCategories');
         if (browseByCategories) {

@@ -7,6 +7,28 @@ const App = (() => {
         const session = AppState.loadSession();
         console.log('Session loaded:', session);
         
+        // Setup simple collapsible for Progress Summary
+        const progressSummary = document.getElementById('progressSummary');
+        const progressHeader = document.querySelector('.progress-summary-header');
+        const progressSections = document.querySelector('.progress-sections');
+        const toggleIcon = document.querySelector('.toggle-icon');
+        
+        if (progressHeader && progressSections) {
+            progressHeader.style.cursor = 'pointer';
+            progressSections.style.display = 'none'; // Hide by default
+            if (toggleIcon) toggleIcon.classList.add('collapsed');
+            
+            progressHeader.addEventListener('click', function() {
+                if (progressSections.style.display === 'none') {
+                    progressSections.style.display = 'flex';
+                    if (toggleIcon) toggleIcon.classList.remove('collapsed');
+                } else {
+                    progressSections.style.display = 'none';
+                    if (toggleIcon) toggleIcon.classList.add('collapsed');
+                }
+            });
+        }
+        
         // Setup all event handlers
         Events.setupEventHandlers();
         
@@ -30,10 +52,30 @@ const App = (() => {
                         UI.updateProgressSummary();
                     }, 100);
                     
-                    // If we have vehicle config, show VIN navigation (choice between browse/search)
+                    // Token validation: silently validate token with stored VIN
+                    // This catches stale tokens before user tries to perform actions
                     if (session.hasVehicleConfig) {
-                        UI.showVinNavigation();
-                        return;
+                        const storedVin = vinDecodeResponse.data[0].vin;
+                        if (storedVin) {
+                            console.log('🔐 Validating token with stored VIN...');
+                            API.validateTokenViaVinDecode(storedVin).then((isValid) => {
+                                if (isValid) {
+                                    console.log('✓ Token is valid');
+                                    UI.showVinNavigation();
+                                } else {
+                                    console.warn('✗ Token validation failed (401)');
+                                    AppState.clearSession();
+                                    Utils.showStatus('✗ Session expired. Please login again.', 'error');
+                                    UI.showLoginForm();
+                                }
+                            }).catch((error) => {
+                                console.error('Token validation error:', error);
+                                // On network error, allow user to continue with existing session
+                                // (they'll get a proper error if token is actually stale)
+                                UI.showVinNavigation();
+                            });
+                            return;
+                        }
                     }
                 }
             }

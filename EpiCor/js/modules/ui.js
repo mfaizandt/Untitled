@@ -1,5 +1,43 @@
 // ui.js - UI rendering and view management
 const UI = (() => {
+    // Helper: Update breadcrumbs for a view
+    const updateBreadcrumbs = (pathKey, activeStep, navigationCallback) => {
+        Breadcrumbs.initBreadcrumbs(pathKey, activeStep);
+        const breadcrumbHTML = Breadcrumbs.renderBreadcrumbs();
+        
+        // Find and update breadcrumb container in the current view
+        // Each view has its own breadcrumb container ID
+        const containers = document.querySelectorAll('[id*="Breadcrumb"]');
+        let containerUpdated = false;
+        
+        containers.forEach((container) => {
+            const parentView = container.closest('[id*="View"], [id*="Form"], [id$="Navigation"], [id*="Selection"]');
+            if (parentView && parentView.style.display !== 'none' && parentView.classList.contains('hidden') === false) {
+                container.innerHTML = breadcrumbHTML;
+                if (navigationCallback) {
+                    Breadcrumbs.setupClickHandlers(container, navigationCallback);
+                }
+                containerUpdated = true;
+            }
+        });
+        
+        if (!containerUpdated && navigationCallback) {
+            // Fallback: setup click handlers on all visible breadcrumbs
+            const visibleBreadcrumbs = document.querySelectorAll('.breadcrumb-link:not(.hidden)');
+            visibleBreadcrumbs.forEach((link) => {
+                const step = link.getAttribute('data-step');
+                if (step) {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        if (Breadcrumbs.isNavigableStep(step)) {
+                            navigationCallback(step);
+                        }
+                    });
+                }
+            });
+        }
+    };
+    
     // View Management
     const showLoginForm = () => {
         document.getElementById('loginForm').classList.remove('hidden');
@@ -90,6 +128,13 @@ const UI = (() => {
         document.getElementById('tree').style.display = 'block';
         document.querySelector('.controls').style.display = 'flex';
         
+        // Update breadcrumbs for catalog tree view
+        updateBreadcrumbs('catalogPath', 'Catalog Tree', (step) => {
+            if (step === 'VIN') {
+                showVinForm();
+            }
+        });
+        
         // Log for debugging
         const treeInstance = AppState.getTreeInstance();
         console.log('showTreeView - manufacturerSelection hidden:', document.getElementById('manufacturerSelection').classList.contains('hidden'));
@@ -171,6 +216,16 @@ const UI = (() => {
         document.getElementById('manufacturerSelection').style.display = 'block';
         document.getElementById('partsView').classList.add('hidden');
         
+        // Update breadcrumbs for manufacturer selection (adapt path based on routing)
+        const pathKey = AppState.getSearchRoute() === 'search' ? 'searchPath' : 'catalogPath';
+        updateBreadcrumbs(pathKey, 'Manufacturers', (step) => {
+            if (step === 'VIN') {
+                showVinForm();
+            } else if (step === 'Catalog Tree' || step === 'Search Parts') {
+                AppState.getSearchRoute() === 'search' ? showPartsSearchView() : showTreeView();
+            }
+        });
+        
         // Update back button text based on route
         const backBtnText = document.getElementById('backToTreeBtnText');
         if (backBtnText) {
@@ -183,12 +238,6 @@ const UI = (() => {
             Utils.setDisplay('manufacturerContent', 'block');
             renderManufacturers();
             updateSelectedCount();
-            if (AppState.selectedCatalogObjectName) {
-                const breadcrumbEl = document.getElementById('manufacturerBreadcrumb');
-                if (breadcrumbEl) {
-                    breadcrumbEl.innerHTML = `<span class="breadcrumb-item">${Utils.escapeHtml(AppState.selectedCatalogObjectName)}</span>`;
-                }
-            }
         }
     };
     
@@ -217,16 +266,22 @@ const UI = (() => {
         document.getElementById('partsView').classList.remove('hidden');
         document.getElementById('partsView').style.display = 'block';
         
+        // Update breadcrumbs for parts view (adapt path based on routing)
+        const pathKey = AppState.getSearchRoute() === 'search' ? 'searchPath' : 'catalogPath';
+        updateBreadcrumbs(pathKey, 'Parts', (step) => {
+            if (step === 'VIN') {
+                showVinForm();
+            } else if (step === 'Catalog Tree' || step === 'Search Parts') {
+                AppState.getSearchRoute() === 'search' ? showPartsSearchView() : showTreeView();
+            } else if (step === 'Manufacturers') {
+                showManufacturerSelection();
+            }
+        });
+        
         if (AppState.getParts().length > 0) {
             Utils.setDisplay('partsLoading', 'none');
             Utils.setDisplay('partsContent', 'block');
             renderParts();
-            if (AppState.selectedCatalogObjectName) {
-                const breadcrumbEl = document.getElementById('partsBreadcrumb');
-                if (breadcrumbEl) {
-                    breadcrumbEl.innerHTML = `<span class="breadcrumb-item">${Utils.escapeHtml(AppState.selectedCatalogObjectName)}</span>`;
-                }
-            }
         }
     };
     
@@ -1395,6 +1450,17 @@ const UI = (() => {
         document.getElementById('laborOperationsView').style.display = 'none';
         document.getElementById('progressSummary').classList.add('hidden');
         document.querySelector('.controls').style.display = 'none';
+        
+        // Update breadcrumb for VIN Navigation (simple VIN breadcrumb, no path yet)
+        const breadcrumbContainer = document.getElementById('vinNavigationBreadcrumb');
+        if (breadcrumbContainer) {
+            // VIN Navigation shows just "VIN" as the current step, no navigation options
+            breadcrumbContainer.innerHTML = `
+                <span class="breadcrumb-item active">
+                    <span>VIN</span>
+                </span>
+            `;
+        }
     };
     
     const showPartsSearchView = () => {
@@ -1421,6 +1487,14 @@ const UI = (() => {
         document.getElementById('laborOperationsView').style.display = 'none';
         document.getElementById('progressSummary').classList.add('hidden');
         document.querySelector('.controls').style.display = 'none';
+        
+        // Update route to search and set breadcrumbs
+        AppState.setSearchRoute('search');
+        updateBreadcrumbs('searchPath', 'Search Parts', (step) => {
+            if (step === 'VIN') {
+                showVinForm();
+            }
+        });
         
         // Focus on search input
         setTimeout(() => {
