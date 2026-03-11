@@ -45,6 +45,11 @@ const AppState = (() => {
         laborOperationsProvider: null, // 'motor' or 'mitchell'
         laborOperationsMotor: null,
         laborOperationsMitchell: null,
+        // Labor direct path (VIN -> Labor, no catalog)
+        laborDirectPath: false,
+        laborOperationList: [], // from get-labor-operation-list
+        selectedLaborOperationIds: new Set(),
+        laborDetails: [], // aggregated from get-labor-operation-by-id
         
         // Progress tracking
         vinDecodeResponse: null,
@@ -83,7 +88,11 @@ const AppState = (() => {
         getLaborOperations: () => state.laborOperations,
         getLaborOperationsProvider: () => state.laborOperationsProvider,
         getLaborOperationsMotor: () => state.laborOperationsMotor,
-        getLaborOperationsMitchell: () => state.laborOperationsMitchell
+        getLaborOperationsMitchell: () => state.laborOperationsMitchell,
+        getLaborDirectPath: () => state.laborDirectPath,
+        getLaborOperationList: () => state.laborOperationList,
+        getSelectedLaborOperationIds: () => state.selectedLaborOperationIds,
+        getLaborDetails: () => state.laborDetails
     };
     
     // Setter methods
@@ -184,6 +193,21 @@ const AppState = (() => {
             state.laborOperationsProvider = null;
             state.laborOperationsMotor = null;
             state.laborOperationsMitchell = null;
+        },
+        setLaborDirectPath: (flag) => state.laborDirectPath = !!flag,
+        setLaborOperationList: (list) => state.laborOperationList = Array.isArray(list) ? list : [],
+        setSelectedLaborOperationIds: (ids) => {
+            state.selectedLaborOperationIds = ids instanceof Set ? ids : new Set(Array.isArray(ids) ? ids : []);
+        },
+        addSelectedLaborOperationId: (id) => state.selectedLaborOperationIds.add(id),
+        removeSelectedLaborOperationId: (id) => state.selectedLaborOperationIds.delete(id),
+        clearSelectedLaborOperationIds: () => state.selectedLaborOperationIds.clear(),
+        setLaborDetails: (details) => state.laborDetails = Array.isArray(details) ? details : [],
+        clearLaborDirectPathState: () => {
+            state.laborDirectPath = false;
+            state.laborOperationList = [];
+            state.selectedLaborOperationIds = new Set();
+            state.laborDetails = [];
         },
         resetState: () => {
             state.selectedCatalogObjects = [];

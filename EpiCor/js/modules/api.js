@@ -862,8 +862,12 @@ const API = (() => {
                 }
                 Utils.showStatus('⚠️ No labor operations available for the selected parts', 'warning');
             } else {
-                // Render the labor operations
-                UI.renderLaborOperations(laborData, provider);
+                // Render the labor operations using the appropriate function based on provider
+                if (provider === 'mitchell') {
+                    UI.renderLaborDetailsMitchell(laborData, provider);
+                } else {
+                    UI.renderLaborOperations(laborData, provider);
+                }
                 Utils.showStatus(`✓ Loaded ${laborData.length} labor operations!`, 'success');
             }
             
@@ -885,6 +889,94 @@ const API = (() => {
             Utils.showStatus('✗ Failed to load labor operations: ' + (error.message || 'Unknown error'), 'error');
         }
     };
+
+    const getLaborOperationList = async (provider) => {
+        if (!AppState.getToken() || !AppState.getVehicleConfig()) {
+            Utils.showStatus('✗ Please login and decode VIN first', 'error');
+            return null;
+        }
+        if (!provider || (provider !== 'motor' && provider !== 'mitchell')) {
+            Utils.showStatus('✗ Invalid API provider selected', 'error');
+            return null;
+        }
+        try {
+            const baseURL = AppState.getAPIBaseURL();
+            const url = `${baseURL}/api/labor/${provider}/get-labor-operation-list`;
+            const vehicleConfigValue = AppState.getVehicleConfig();
+            const vehicleConfigHeader = typeof vehicleConfigValue === 'string' ? vehicleConfigValue : JSON.stringify(vehicleConfigValue);
+            const headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${AppState.getToken()}`,
+                'X-Vehicle-Configuration': vehicleConfigHeader
+            };
+            const options = {
+                method: provider === 'motor' ? 'POST' : 'GET',
+                headers: headers
+            };
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                const errorText = await response.text();
+                if (response.status === 401) {
+                    AppState.clearSession();
+                    Utils.showStatus('✗ Session expired. Please login again.', 'error');
+                    setTimeout(() => UI.showLoginForm(), 2000);
+                }
+                throw new Error(`Labor operation list fetch failed: ${response.status} ${response.statusText}. ${errorText}`);
+            }
+            const json = await response.json();
+            return json.data || [];
+        } catch (error) {
+            console.error('Labor operation list error:', error);
+            throw error;
+        }
+    };
+
+    const getLaborOperationById = async (provider, operationId) => {
+        if (!AppState.getToken() || !AppState.getVehicleConfig()) {
+            Utils.showStatus('✗ Please login and decode VIN first', 'error');
+            return null;
+        }
+        if (!provider || (provider !== 'motor' && provider !== 'mitchell')) {
+            Utils.showStatus('✗ Invalid API provider selected', 'error');
+            return null;
+        }
+        if (!operationId) {
+            Utils.showStatus('✗ Operation ID is required', 'error');
+            return null;
+        }
+        try {
+            const baseURL = AppState.getAPIBaseURL();
+            const url = `${baseURL}/api/labor/${provider}/get-labor-operation-by-id/${operationId}`;
+            const vehicleConfigValue = AppState.getVehicleConfig();
+            const vehicleConfigHeader = typeof vehicleConfigValue === 'string' ? vehicleConfigValue : JSON.stringify(vehicleConfigValue);
+            const headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${AppState.getToken()}`,
+                'X-Vehicle-Configuration': vehicleConfigHeader
+            };
+            const options = {
+                method: provider === 'motor' ? 'POST' : 'GET',
+                headers: headers
+            };
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                const errorText = await response.text();
+                if (response.status === 401) {
+                    AppState.clearSession();
+                    Utils.showStatus('✗ Session expired. Please login again.', 'error');
+                    setTimeout(() => UI.showLoginForm(), 2000);
+                }
+                throw new Error(`Labor operation by ID fetch failed: ${response.status} ${response.statusText}. ${errorText}`);
+            }
+            const json = await response.json();
+            return json.data || [];
+        } catch (error) {
+            console.error('Labor operation by ID error:', error);
+            throw error;
+        }
+    };
     
     return {
         loginUser,
@@ -897,6 +989,8 @@ const API = (() => {
         logout,
         fetchPartDetails,
         searchParts,
-        getLaborOperations
+        getLaborOperations,
+        getLaborOperationList,
+        getLaborOperationById
     };
 })();

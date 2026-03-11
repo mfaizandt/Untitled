@@ -59,6 +59,8 @@ const UI = (() => {
         document.getElementById('fetchOptionsView').style.display = 'none';
         document.getElementById('laborProviderSelection').classList.add('hidden');
         document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationListView').classList.add('hidden');
+        document.getElementById('laborOperationListView').style.display = 'none';
         document.getElementById('laborOperationsView').classList.add('hidden');
         document.getElementById('laborOperationsView').style.display = 'none';
         document.getElementById('progressSummary').classList.add('hidden');
@@ -85,6 +87,8 @@ const UI = (() => {
         document.getElementById('fetchOptionsView').style.display = 'none';
         document.getElementById('laborProviderSelection').classList.add('hidden');
         document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationListView').classList.add('hidden');
+        document.getElementById('laborOperationListView').style.display = 'none';
         document.getElementById('laborOperationsView').classList.add('hidden');
         document.getElementById('laborOperationsView').style.display = 'none';
         document.getElementById('progressSummary').classList.add('hidden');
@@ -117,6 +121,8 @@ const UI = (() => {
         document.getElementById('fetchOptionsView').style.display = 'none';
         document.getElementById('laborProviderSelection').classList.add('hidden');
         document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationListView').classList.add('hidden');
+        document.getElementById('laborOperationListView').style.display = 'none';
         document.getElementById('laborOperationsView').classList.add('hidden');
         document.getElementById('laborOperationsView').style.display = 'none';
         document.getElementById('progressSummary').classList.add('hidden');
@@ -208,6 +214,8 @@ const UI = (() => {
         document.getElementById('fetchOptionsView').style.display = 'none';
         document.getElementById('laborProviderSelection').classList.add('hidden');
         document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationListView').classList.add('hidden');
+        document.getElementById('laborOperationListView').style.display = 'none';
         document.getElementById('laborOperationsView').classList.add('hidden');
         document.getElementById('laborOperationsView').style.display = 'none';
         document.getElementById('progressSummary').classList.add('hidden');
@@ -259,6 +267,8 @@ const UI = (() => {
         document.getElementById('fetchOptionsView').style.display = 'none';
         document.getElementById('laborProviderSelection').classList.add('hidden');
         document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationListView').classList.add('hidden');
+        document.getElementById('laborOperationListView').style.display = 'none';
         document.getElementById('laborOperationsView').classList.add('hidden');
         document.getElementById('laborOperationsView').style.display = 'none';
         document.getElementById('progressSummary').classList.add('hidden');
@@ -1446,6 +1456,8 @@ const UI = (() => {
         document.getElementById('fetchOptionsView').style.display = 'none';
         document.getElementById('laborProviderSelection').classList.add('hidden');
         document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationListView').classList.add('hidden');
+        document.getElementById('laborOperationListView').style.display = 'none';
         document.getElementById('laborOperationsView').classList.add('hidden');
         document.getElementById('laborOperationsView').style.display = 'none';
         document.getElementById('progressSummary').classList.add('hidden');
@@ -1483,6 +1495,8 @@ const UI = (() => {
         document.getElementById('fetchOptionsView').style.display = 'none';
         document.getElementById('laborProviderSelection').classList.add('hidden');
         document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationListView').classList.add('hidden');
+        document.getElementById('laborOperationListView').style.display = 'none';
         document.getElementById('laborOperationsView').classList.add('hidden');
         document.getElementById('laborOperationsView').style.display = 'none';
         document.getElementById('progressSummary').classList.add('hidden');
@@ -1597,6 +1611,8 @@ const UI = (() => {
         document.getElementById('partsSearchView').style.display = 'none';
         document.getElementById('laborProviderSelection').classList.add('hidden');
         document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationListView').classList.add('hidden');
+        document.getElementById('laborOperationListView').style.display = 'none';
         document.getElementById('laborOperationsView').classList.add('hidden');
         document.getElementById('laborOperationsView').style.display = 'none';
         document.getElementById('progressSummary').classList.add('hidden');
@@ -1615,26 +1631,62 @@ const UI = (() => {
     };
     
     const showLaborProviderSelection = () => {
+        AppState.setLaborDirectPath(false);
         document.getElementById('fetchOptionsView').classList.add('hidden');
         document.getElementById('fetchOptionsView').style.display = 'none';
+        document.getElementById('laborOperationListView').classList.add('hidden');
+        document.getElementById('laborOperationListView').style.display = 'none';
         document.getElementById('progressSummary').classList.add('hidden');
         document.getElementById('laborProviderSelection').classList.remove('hidden');
         document.getElementById('laborProviderSelection').style.display = 'block';
+        const breadcrumbTree = document.getElementById('breadcrumbTreeFromProvider');
+        if (breadcrumbTree) breadcrumbTree.textContent = 'Catalog Tree';
+        const backBtn = document.getElementById('backToFetchOptionsBtn');
+        if (backBtn) backBtn.textContent = '← Back';
+    };
+
+    const showLaborProviderSelectionDirect = () => {
+        AppState.setLaborDirectPath(true);
+        document.getElementById('vinNavigation').classList.add('hidden');
+        document.getElementById('vinNavigation').style.display = 'none';
+        document.getElementById('laborOperationListView').classList.add('hidden');
+        document.getElementById('laborOperationListView').style.display = 'none';
+        document.getElementById('laborOperationsView').classList.add('hidden');
+        document.getElementById('laborOperationsView').style.display = 'none';
+        document.getElementById('progressSummary').classList.add('hidden');
+        document.getElementById('laborProviderSelection').classList.remove('hidden');
+        document.getElementById('laborProviderSelection').style.display = 'block';
+        const breadcrumbTree = document.getElementById('breadcrumbTreeFromProvider');
+        if (breadcrumbTree) breadcrumbTree.textContent = 'Labor';
+        const backBtn = document.getElementById('backToFetchOptionsBtn');
+        if (backBtn) backBtn.textContent = '← Back to VIN';
+    };
+
+    const showLaborOperationListView = (provider) => {
+        document.getElementById('laborProviderSelection').classList.add('hidden');
+        document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationsView').classList.add('hidden');
+        document.getElementById('laborOperationsView').style.display = 'none';
+        document.getElementById('progressSummary').classList.add('hidden');
+        document.getElementById('laborOperationListView').classList.remove('hidden');
+        document.getElementById('laborOperationListView').style.display = 'block';
+        const providerLabel = provider === 'motor' ? 'Motor API' : 'Mitchell API';
+        const labelEl = document.getElementById('laborOperationListProviderLabel');
+        if (labelEl) labelEl.textContent = `Operation List (${providerLabel})`;
+        const subtitleEl = document.getElementById('laborOperationListSubtitle');
+        if (subtitleEl) subtitleEl.textContent = `Select operations to view details from ${providerLabel}`;
     };
     
     const showLaborOperationsView = () => {
-        // Hide other views
         document.getElementById('fetchOptionsView').classList.add('hidden');
         document.getElementById('fetchOptionsView').style.display = 'none';
         document.getElementById('laborProviderSelection').classList.add('hidden');
         document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationListView').classList.add('hidden');
+        document.getElementById('laborOperationListView').style.display = 'none';
         document.getElementById('progressSummary').classList.add('hidden');
-        
-        // Show labor operations view
         document.getElementById('laborOperationsView').classList.remove('hidden');
         document.getElementById('laborOperationsView').style.display = 'block';
-        
-        // Show loading state
         Utils.setDisplay('laborLoading', 'block');
         Utils.setDisplay('laborContent', 'none');
     };
@@ -1647,14 +1699,9 @@ const UI = (() => {
         
         if (!listEl) return;
         
-        // Update provider info
         const providerLabel = provider === 'motor' ? 'Motor API' : 'Mitchell API';
-        if (providerNameEl) {
-            providerNameEl.textContent = `Labor Operations (${providerLabel})`;
-        }
-        if (subtitleEl) {
-            subtitleEl.textContent = `Labor times and operation details from ${providerLabel}`;
-        }
+        if (providerNameEl) providerNameEl.textContent = `Labor Operations (${providerLabel})`;
+        if (subtitleEl) subtitleEl.textContent = `Labor times and operation details from ${providerLabel}`;
         
         if (!operations || operations.length === 0) {
             listEl.innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;"><p>No labor operations found</p></div>';
@@ -1665,7 +1712,6 @@ const UI = (() => {
         let html = '';
         const operationMap = new Map();
         
-        // Group operations by operationID
         operations.forEach((item) => {
             const op = item.operation;
             if (!operationMap.has(op.operationID)) {
@@ -1686,138 +1732,240 @@ const UI = (() => {
             });
         });
         
-        // Render each unique operation
+        html += `<table style="width: 100%; border-collapse: collapse; margin: 0;">`;
+        html += `<thead><tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">`;
+        html += `<th style="padding: 12px; text-align: left; font-weight: 600; width: 80px;">Op ID</th>`;
+        html += `<th style="padding: 12px; text-align: left; font-weight: 600; flex: 1; width: 250px;">Operation</th>`;
+        html += `<th style="padding: 12px; text-align: left; font-weight: 600; width: 200px;">Description</th>`;
+        html += `<th style="padding: 12px; text-align: center; font-weight: 600; width: 80px;">Hours</th>`;
+        html += `<th style="padding: 12px; text-align: center; font-weight: 600; width: 50px; color: #667eea;">▼</th>`;
+        html += `</tr></thead><tbody>`;
+        
         operationMap.forEach((opData) => {
-            const operationId = `labor-op-${opData.operationID}`;
+            const rowId = `motor-op-${opData.operationID}`;
+            const detailId = `motor-detail-${opData.operationID}`;
+            const hours = opData.positions.length > 0 ? (opData.positions[0].effort?.baseEstWorkTime || '0') : '0';
             
-            html += `
-                <div class="labor-operation-card">
-                    <div class="labor-operation-header" onclick="document.getElementById('${operationId}').classList.toggle('expanded'); this.classList.toggle('expanded');">
-                        <div class="labor-operation-title">
-                            <span class="labor-op-id">${opData.operationID}</span>
-                            <div class="labor-op-info">
-                                <h4>${Utils.escapeHtml(opData.literalName)}</h4>
-                                <p class="labor-op-desc">${Utils.escapeHtml(opData.description)}</p>
-                            </div>
-                        </div>
-                        <span class="labor-expand-icon">▶</span>
-                    </div>
-                    <div class="labor-operation-detail" id="${operationId}">
-                        <div class="labor-detail-section">
-                            <h5>Positions</h5>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px;">
-            `;
+            html += `<tr class="labor-row" style="border-bottom: 1px solid #dee2e6; cursor: pointer;" onclick="document.getElementById('${detailId}').style.display = document.getElementById('${detailId}').style.display === 'none' ? 'table-row' : 'none'; this.classList.toggle('expanded');">`;
+            html += `<td style="padding: 12px; font-weight: 600; color: #667eea;">${opData.operationID}</td>`;
+            html += `<td style="padding: 12px;">${Utils.escapeHtml(opData.literalName || '-')}</td>`;
+            html += `<td style="padding: 12px; color: #666; font-size: 13px;">${Utils.escapeHtml((opData.description || '').substring(0, 50)) + (opData.description?.length > 50 ? '...' : '')}</td>`;
+            html += `<td style="padding: 12px; text-align: center; font-weight: 600; color: #28a745;">${hours} hrs</td>`;
+            html += `<td style="padding: 12px; text-align: center; color: #667eea; font-size: 14px;">+</td>`;
+            html += `</tr>`;
             
-            // Get unique positions
+            html += `<tr id="${detailId}" style="background: #f8f9fa; border-bottom: 2px solid #dee2e6; display: none;">`;
+            html += `<td colspan="5" style="padding: 20px;">`;
+            html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">`;
+            
+            html += `<div>`;
+            html += `<h5 style="margin: 0 0 10px 0; color: #333;">Positions</h5>`;
             const uniquePositions = new Map();
             opData.positions.forEach(p => {
                 const key = `${p.position}-${p.positionID}`;
-                if (!uniquePositions.has(key)) {
-                    uniquePositions.set(key, p);
-                }
+                if (!uniquePositions.has(key)) uniquePositions.set(key, p);
             });
+            let posHtml = '';
+            uniquePositions.forEach((p) => posHtml += `<span style="display: inline-block; background: #e7f3ff; color: #0066cc; padding: 4px 8px; border-radius: 3px; margin-right: 5px; font-size: 12px;">${Utils.escapeHtml(p.position)}</span>`);
+            html += posHtml || '<span style="color: #6c757d;">No positions</span>';
+            html += `</div>`;
             
-            uniquePositions.forEach((p) => {
-                html += `
-                    <div class="labor-position-badge">
-                        <span>${Utils.escapeHtml(p.position)}</span>
-                    </div>
-                `;
-            });
+            html += `<div>`;
+            html += `<h5 style="margin: 0 0 10px 0; color: #333;">Required Skill</h5>`;
+            html += `<div style="background: white; padding: 8px; border-radius: 4px; border-left: 3px solid #667eea;">`;
+            html += `<div style="font-weight: 600; color: #333;">${Utils.escapeHtml(opData.skillName)}</div>`;
+            html += `<div style="font-size: 12px; color: #666;">${Utils.escapeHtml(opData.skillDesc)}</div>`;
+            html += `</div></div></div>`;
             
-            html += `
-                            </div>
-                            <h5>Parts Involved</h5>
-                            <div style="margin-bottom: 15px;">
-            `;
-            
-            // Get unique parts
-            const uniqueParts = new Map();
-            opData.positions.forEach(p => {
-                p.parts.forEach(part => {
-                    const key = part.partTerminologyID;
-                    if (!uniqueParts.has(key)) {
-                        uniqueParts.set(key, part);
-                    }
-                });
-            });
-            
-            if (uniqueParts.size > 0) {
-                uniqueParts.forEach((part) => {
-                    html += `<div class="labor-part-item">• ${Utils.escapeHtml(part.partTerminologyName)}</div>`;
-                });
-            } else {
-                html += '<div style="color: #6c757d; font-style: italic;">No parts associated</div>';
-            }
-            
-            html += `
-                            </div>
-                            <h5>Labor Information</h5>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            `;
-            
-            // Labor times from first position (they should be same for same operation)
+            html += `<div style="margin-top: 15px;">`;
+            html += `<h5 style="margin: 0 0 10px 0; color: #333;">Labor Times</h5>`;
+            html += `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">`;
             if (opData.positions.length > 0) {
                 const effort = opData.positions[0].effort;
-                html += `
-                    <div class="labor-time-box">
-                        <div class="labor-time-label">Base Est. Work Time</div>
-                        <div class="labor-time-value">${effort.baseEstWorkTime || '0'} hrs</div>
-                    </div>
-                    <div class="labor-time-box">
-                        <div class="labor-time-label">All Est. Work Time</div>
-                        <div class="labor-time-value">${effort.allEstWorkTime || '0'} hrs</div>
-                    </div>
-                    <div class="labor-time-box">
-                        <div class="labor-time-label">Base Warranty Time</div>
-                        <div class="labor-time-value">${effort.baseWarrantyTime || '0'} hrs</div>
-                    </div>
-                    <div class="labor-time-box">
-                        <div class="labor-time-label">All Warranty Time</div>
-                        <div class="labor-time-value">${effort.allWarrantyTime || '0'} hrs</div>
-                    </div>
-                `;
+                html += `<div style="background: white; padding: 8px; border-radius: 4px;"><span style="font-size: 11px; color: #666;">Base Est.</span><div style="font-weight: 700; color: #28a745;">${effort.baseEstWorkTime || '0'} hrs</div></div>`;
+                html += `<div style="background: white; padding: 8px; border-radius: 4px;"><span style="font-size: 11px; color: #666;">All Est.</span><div style="font-weight: 700; color: #28a745;">${effort.allEstWorkTime || '0'} hrs</div></div>`;
+                html += `<div style="background: white; padding: 8px; border-radius: 4px;"><span style="font-size: 11px; color: #666;">Base Warranty</span><div style="font-weight: 700; color: #28a745;">${effort.baseWarrantyTime || '0'} hrs</div></div>`;
+                html += `<div style="background: white; padding: 8px; border-radius: 4px;"><span style="font-size: 11px; color: #666;">All Warranty</span><div style="font-weight: 700; color: #28a745;">${effort.allWarrantyTime || '0'} hrs</div></div>`;
             }
+            html += `</div></div>`;
             
+            html += `<div style="margin-top: 15px;">`;
+            html += `<h5 style="margin: 0 0 10px 0; color: #333;">Parts Involved</h5>`;
+            const uniqueParts = new Map();
+            opData.positions.forEach(p => p.parts.forEach(part => {
+                if (!uniqueParts.has(part.partTerminologyID)) uniqueParts.set(part.partTerminologyID, part);
+            }));
+            let partHtml = '';
+            uniqueParts.forEach((part) => partHtml += `<div style="padding: 4px 0; font-size: 13px;">• ${Utils.escapeHtml(part.partTerminologyName)}</div>`);
+            html += partHtml || '<span style="color: #6c757d; font-size: 13px;">No parts associated</span>';
+            html += `</div>`;
+            
+            html += `</td></tr>`;
+        });
+        
+        html += `</tbody></table>`;
+        listEl.innerHTML = html;
+        if (countEl) countEl.textContent = `${operationMap.size} operation${operationMap.size !== 1 ? 's' : ''} loaded`;
+        Utils.setDisplay('laborLoading', 'none');
+        Utils.setDisplay('laborContent', 'block');
+    };
+
+    const renderLaborOperationList = (operations, provider) => {
+        const listEl = document.getElementById('laborOperationListItems');
+        const countEl = document.getElementById('laborOperationListCount');
+        const selectedEl = document.getElementById('laborOperationListSelected');
+        if (!listEl) return;
+        AppState.clearSelectedLaborOperationIds();
+        if (!operations || operations.length === 0) {
+            listEl.innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;"><p>No labor operations found</p></div>';
+            if (countEl) countEl.textContent = '0 operations';
+            if (selectedEl) selectedEl.textContent = '0 selected';
+            Utils.setDisplay('laborOperationListLoading', 'none');
+            Utils.setDisplay('laborOperationListContent', 'block');
+            return;
+        }
+        let html = '';
+        operations.forEach((op) => {
+            const opId = op.operationID;
+            const literalName = op.literalName || '-';
+            const description = op.description || '-';
+            const qualifiers = op.qualifiers ? ` (${Utils.escapeHtml(op.qualifiers)})` : '';
             html += `
-                            </div>
-                            <h5>Scope & Notes</h5>
-                            <div style="margin-bottom: 15px;">
-            `;
-            
-            if (opData.positions.length > 0 && opData.positions[0].effort) {
-                const effort = opData.positions[0].effort;
-                if (effort.baseAdditionalDesc) {
-                    html += `<div class="labor-additional-desc"><strong>Base:</strong> ${Utils.escapeHtml(effort.baseAdditionalDesc.description)}</div>`;
-                }
-                if (effort.allAdditionalDesc) {
-                    html += `<div class="labor-additional-desc"><strong>All:</strong> ${Utils.escapeHtml(effort.allAdditionalDesc.description)}</div>`;
-                }
-                if (effort.footnote && effort.footnote.length > 0) {
-                    html += '<div class="labor-footnote-title">Footnotes:</div>';
-                    effort.footnote.forEach(fn => {
-                        html += `<div class="labor-footnote">• ${Utils.escapeHtml(fn.description)}</div>`;
-                    });
-                }
-            }
-            
-            html += `
-                            </div>
-                            <h5>Required Skill</h5>
-                            <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                                <div style="font-weight: 600;">${Utils.escapeHtml(opData.skillName)}</div>
-                                <div style="font-size: 13px; color: #6c757d; margin-top: 5px;">${Utils.escapeHtml(opData.skillDesc)}</div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="labor-operation-list-item" style="padding: 12px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 12px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; flex: 1;">
+                        <input type="checkbox" class="labor-op-checkbox" data-operation-id="${opId}" />
+                        <span style="font-weight: 600; color: #333;">${Utils.escapeHtml(String(opId))}</span>
+                        <span style="flex: 1;">${Utils.escapeHtml(literalName)}</span>
+                        <span style="font-size: 12px; color: #666;">${Utils.escapeHtml(description)}${qualifiers}</span>
+                    </label>
                 </div>
             `;
         });
-        
         listEl.innerHTML = html;
-        if (countEl) countEl.textContent = `${operationMap.size} operation${operationMap.size !== 1 ? 's' : ''} loaded`;
+        if (countEl) countEl.textContent = `${operations.length} operation${operations.length !== 1 ? 's' : ''}`;
+        if (selectedEl) selectedEl.textContent = '0 selected';
+        Utils.setDisplay('laborOperationListLoading', 'none');
+        Utils.setDisplay('laborOperationListContent', 'block');
+        listEl.querySelectorAll('.labor-op-checkbox').forEach((cb) => {
+            cb.addEventListener('change', () => {
+                const id = parseInt(cb.dataset.operationId, 10);
+                if (cb.checked) {
+                    AppState.addSelectedLaborOperationId(id);
+                } else {
+                    AppState.removeSelectedLaborOperationId(id);
+                }
+                const selectedEl2 = document.getElementById('laborOperationListSelected');
+                if (selectedEl2) selectedEl2.textContent = `${AppState.getSelectedLaborOperationIds().size} selected`;
+            });
+        });
+    };
+
+    const renderLaborDetailsMitchell = (operations, provider) => {
+        const listEl = document.getElementById('laborOperationsList');
+        const countEl = document.getElementById('laborOperationsCount');
+        const providerNameEl = document.getElementById('laborProviderName');
+        const subtitleEl = document.getElementById('laborSubtitle');
+        if (!listEl) return;
+        const providerLabel = provider === 'motor' ? 'Motor API' : 'Mitchell API';
+        if (providerNameEl) providerNameEl.textContent = `Labor Operations (${providerLabel})`;
+        if (subtitleEl) subtitleEl.textContent = `Labor details from ${providerLabel}`;
+        if (!operations || operations.length === 0) {
+            listEl.innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;"><p>No labor details found</p></div>';
+            if (countEl) countEl.textContent = '0 operations loaded';
+            Utils.setDisplay('laborLoading', 'none');
+            Utils.setDisplay('laborContent', 'block');
+            return;
+        }
+        let html = '';
+        html += `<table style="width: 100%; border-collapse: collapse; margin: 0;">`;
+        html += `<thead><tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">`;
+        html += `<th style="padding: 12px; text-align: left; font-weight: 600; width: 80px;">Op ID</th>`;
+        html += `<th style="padding: 12px; text-align: left; font-weight: 600; width: 200px;">Component</th>`;
+        html += `<th style="padding: 12px; text-align: left; font-weight: 600; width: 150px;">Type</th>`;
+        html += `<th style="padding: 12px; text-align: left; font-weight: 600; width: 150px;">Group</th>`;
+        html += `<th style="padding: 12px; text-align: center; font-weight: 600; width: 80px;">Labor Time</th>`;
+        html += `<th style="padding: 12px; text-align: center; font-weight: 600; width: 50px; color: #667eea;">▼</th>`;
+        html += `</tr></thead><tbody>`;
         
-        // Hide loading, show content
+        operations.forEach((item) => {
+            const op = item.mainOperation || item;
+            const operationId = op.operationID || 'N/A';
+            const componentName = op.componentName || '-';
+            const operationTypeName = op.operationTypeName || '-';
+            const groupName = op.groupName || '-';
+            const subGroupName = op.subGroupName || '-';
+            const categoryName = op.categoryName || '-';
+            const subCategoryName = op.subCategoryName || '-';
+            const mitchellLaborTime = op.mitchellLaborTime || '-';
+            const operationFootnote = op.operationFootnote || '-';
+            const requiredSkill = op.requiredSkill || {};
+            const skillDesc = requiredSkill.description || '-';
+            const mvcQualifiers = op.mvcQualifiers || '-';
+            const nonMvcQualifiers = op.nonMvcQualifers || '-';
+            const engineSize = op.engineSize || '-';
+            const catalogObjects = op.catalogObjects || [];
+            const rowId = `mitchell-op-${operationId}`;
+            const detailId = `mitchell-detail-${operationId}`;
+            
+            html += `<tr class="labor-row" style="border-bottom: 1px solid #dee2e6; cursor: pointer;" onclick="document.getElementById('${detailId}').style.display = document.getElementById('${detailId}').style.display === 'none' ? 'table-row' : 'none'; this.classList.toggle('expanded');">`;
+            html += `<td style="padding: 12px; font-weight: 600; color: #667eea;">${Utils.escapeHtml(String(operationId))}</td>`;
+            html += `<td style="padding: 12px;">${Utils.escapeHtml(componentName)}</td>`;
+            html += `<td style="padding: 12px; color: #666; font-size: 13px;">${Utils.escapeHtml(operationTypeName)}</td>`;
+            html += `<td style="padding: 12px; color: #666; font-size: 13px;">${Utils.escapeHtml(groupName)}</td>`;
+            html += `<td style="padding: 12px; text-align: center; font-weight: 600; color: #28a745;">${Utils.escapeHtml(String(mitchellLaborTime))} hrs</td>`;
+            html += `<td style="padding: 12px; text-align: center; color: #667eea; font-size: 14px;">+</td>`;
+            html += `</tr>`;
+            
+            html += `<tr id="${detailId}" style="background: #f8f9fa; border-bottom: 2px solid #dee2e6; display: none;">`;
+            html += `<td colspan="6" style="padding: 20px;">`;
+            html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">`;
+            
+            html += `<div>`;
+            html += `<h5 style="margin: 0 0 10px 0; color: #333;">Classification</h5>`;
+            html += `<div style="background: white; padding: 10px; border-radius: 4px; font-size: 13px; line-height: 1.8;">`;
+            html += `<div><strong>Group:</strong> ${Utils.escapeHtml(groupName)}</div>`;
+            html += `<div><strong>Sub-Group:</strong> ${Utils.escapeHtml(subGroupName)}</div>`;
+            html += `<div><strong>Category:</strong> ${Utils.escapeHtml(categoryName)}</div>`;
+            html += `<div><strong>Sub-Category:</strong> ${Utils.escapeHtml(subCategoryName)}</div>`;
+            html += `</div></div>`;
+            
+            html += `<div>`;
+            html += `<h5 style="margin: 0 0 10px 0; color: #333;">Qualifiers</h5>`;
+            html += `<div style="background: white; padding: 10px; border-radius: 4px; font-size: 13px; line-height: 1.8;">`;
+            html += `<div><strong>MVC:</strong> ${Utils.escapeHtml(mvcQualifiers)}</div>`;
+            html += `<div><strong>Non-MVC:</strong> ${Utils.escapeHtml(nonMvcQualifiers)}</div>`;
+            if (engineSize !== '-') html += `<div><strong>Engine Size:</strong> ${Utils.escapeHtml(engineSize)}</div>`;
+            html += `</div></div></div>`;
+            
+            html += `<div style="margin-top: 15px;">`;
+            html += `<h5 style="margin: 0 0 10px 0; color: #333;">Required Skill</h5>`;
+            html += `<div style="background: white; padding: 10px; border-radius: 4px; border-left: 3px solid #667eea;">`;
+            html += `<div style="font-weight: 600; color: #333;">${Utils.escapeHtml(skillDesc)}</div>`;
+            html += `</div></div>`;
+            
+            if (operationFootnote !== '-') {
+                html += `<div style="margin-top: 15px;">`;
+                html += `<h5 style="margin: 0 0 10px 0; color: #333;">Footnote</h5>`;
+                html += `<div style="background: white; padding: 10px; border-radius: 4px; font-size: 13px; line-height: 1.6; border-left: 3px solid #ffc107;">${Utils.escapeHtml(operationFootnote)}</div>`;
+                html += `</div>`;
+            }
+            
+            if (catalogObjects.length > 0) {
+                html += `<div style="margin-top: 15px;">`;
+                html += `<h5 style="margin: 0 0 10px 0; color: #333;">Catalog Objects</h5>`;
+                html += `<div style="background: white; padding: 10px; border-radius: 4px; font-size: 13px;">`;
+                catalogObjects.forEach((co) => {
+                    html += `<div style="padding: 4px 0;">• ${Utils.escapeHtml(co.catalogObjectName || '-')} <span style="color: #999;">(ID: ${co.catalogObjectID})</span></div>`;
+                });
+                html += `</div></div>`;
+            }
+            
+            html += `</td></tr>`;
+        });
+        
+        html += `</tbody></table>`;
+        listEl.innerHTML = html;
+        if (countEl) countEl.textContent = `${operations.length} operation${operations.length !== 1 ? 's' : ''} loaded`;
         Utils.setDisplay('laborLoading', 'none');
         Utils.setDisplay('laborContent', 'block');
     };
@@ -1850,8 +1998,12 @@ const UI = (() => {
         showTreeView,
         showFetchOptionsView,
         showLaborProviderSelection,
+        showLaborProviderSelectionDirect,
+        showLaborOperationListView,
         showLaborOperationsView,
         renderLaborOperations,
+        renderLaborOperationList,
+        renderLaborDetailsMitchell,
         downloadLaborOperations,
         showManufacturerSelection,
         showPartsView,

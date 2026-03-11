@@ -4,7 +4,8 @@ const Breadcrumbs = (() => {
         catalogPath: ['VIN', 'Catalog Tree', 'Manufacturers', 'Parts'],
         searchPath: ['VIN', 'Search Parts', 'Manufacturers', 'Parts'],
         laborPath: ['VIN', 'Catalog Tree', 'Select Data Type', 'Labor Operations'],
-        laborProviderPath: ['VIN', 'Catalog Tree', 'Select Data Type', 'Select API Provider']
+        laborProviderPath: ['VIN', 'Catalog Tree', 'Select Data Type', 'Select API Provider'],
+        laborDirectPath: ['VIN', 'Labor', 'Provider', 'Operation List', 'Labor Details']
     };
 
     // Current breadcrumb state

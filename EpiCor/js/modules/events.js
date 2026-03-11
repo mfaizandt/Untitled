@@ -230,20 +230,56 @@ const Events = (() => {
         // Labor Provider - Motor
         const motorProviderBtn = document.getElementById('motorProviderBtn');
         if (motorProviderBtn) {
-            motorProviderBtn.addEventListener('click', () => {
-                const catalogObjectIDs = AppState.getSelectedCatalogObjects().map(obj => obj.catalogObjectID);
+            motorProviderBtn.addEventListener('click', async () => {
                 AppState.setLaborOperationsProvider('motor');
-                API.getLaborOperations(catalogObjectIDs, 'motor');
+                if (AppState.getLaborDirectPath()) {
+                    try {
+                        Utils.showStatus('🔄 Fetching labor operations...', 'warning');
+                        Utils.setDisplay('laborOperationListLoading', 'block');
+                        Utils.setDisplay('laborOperationListContent', 'none');
+                        UI.showLaborOperationListView('motor');
+                        const list = await API.getLaborOperationList('motor');
+                        AppState.setLaborOperationList(list || []);
+                        UI.renderLaborOperationList(list || [], 'motor');
+                        Utils.showStatus(`✓ Loaded ${(list || []).length} labor operations`, 'success');
+                    } catch (error) {
+                        console.error('Labor list error:', error);
+                        Utils.showStatus('✗ Failed to load labor operations: ' + (error.message || 'Unknown error'), 'error');
+                        Utils.setDisplay('laborOperationListLoading', 'none');
+                        Utils.setDisplay('laborOperationListContent', 'block');
+                    }
+                } else {
+                    const catalogObjectIDs = AppState.getSelectedCatalogObjects().map(obj => obj.catalogObjectID);
+                    API.getLaborOperations(catalogObjectIDs, 'motor');
+                }
             });
         }
         
         // Labor Provider - Mitchell
         const mitchellProviderBtn = document.getElementById('mitchellProviderBtn');
         if (mitchellProviderBtn) {
-            mitchellProviderBtn.addEventListener('click', () => {
-                const catalogObjectIDs = AppState.getSelectedCatalogObjects().map(obj => obj.catalogObjectID);
+            mitchellProviderBtn.addEventListener('click', async () => {
                 AppState.setLaborOperationsProvider('mitchell');
-                API.getLaborOperations(catalogObjectIDs, 'mitchell');
+                if (AppState.getLaborDirectPath()) {
+                    try {
+                        Utils.showStatus('🔄 Fetching labor operations...', 'warning');
+                        Utils.setDisplay('laborOperationListLoading', 'block');
+                        Utils.setDisplay('laborOperationListContent', 'none');
+                        UI.showLaborOperationListView('mitchell');
+                        const list = await API.getLaborOperationList('mitchell');
+                        AppState.setLaborOperationList(list || []);
+                        UI.renderLaborOperationList(list || [], 'mitchell');
+                        Utils.showStatus(`✓ Loaded ${(list || []).length} labor operations`, 'success');
+                    } catch (error) {
+                        console.error('Labor list error:', error);
+                        Utils.showStatus('✗ Failed to load labor operations: ' + (error.message || 'Unknown error'), 'error');
+                        Utils.setDisplay('laborOperationListLoading', 'none');
+                        Utils.setDisplay('laborOperationListContent', 'block');
+                    }
+                } else {
+                    const catalogObjectIDs = AppState.getSelectedCatalogObjects().map(obj => obj.catalogObjectID);
+                    API.getLaborOperations(catalogObjectIDs, 'mitchell');
+                }
             });
         }
         
@@ -264,7 +300,12 @@ const Events = (() => {
         const backToFetchOptions = document.getElementById('backToFetchOptionsBtn');
         if (backToFetchOptions) {
             backToFetchOptions.addEventListener('click', () => {
-                UI.showFetchOptionsView();
+                if (AppState.getLaborDirectPath()) {
+                    AppState.clearLaborDirectPathState();
+                    UI.showVinNavigation();
+                } else {
+                    UI.showFetchOptionsView();
+                }
             });
         }
         
@@ -272,7 +313,83 @@ const Events = (() => {
         const backToFetchOptionsFromLabor = document.getElementById('backToFetchOptionsFromLaborBtn');
         if (backToFetchOptionsFromLabor) {
             backToFetchOptionsFromLabor.addEventListener('click', () => {
-                UI.showFetchOptionsView();
+                if (AppState.getLaborDirectPath()) {
+                    UI.showLaborOperationListView(AppState.getLaborOperationsProvider());
+                } else {
+                    UI.showFetchOptionsView();
+                }
+            });
+        }
+        
+        // Back from labor operation list to provider selection
+        const backToLaborProviderFromListBtn = document.getElementById('backToLaborProviderFromListBtn');
+        if (backToLaborProviderFromListBtn) {
+            backToLaborProviderFromListBtn.addEventListener('click', () => {
+                UI.showLaborProviderSelectionDirect();
+            });
+        }
+        
+        // Labor operation list breadcrumb (direct path)
+        const laborOperationListBreadcrumb = document.getElementById('laborOperationListBreadcrumb');
+        if (laborOperationListBreadcrumb) {
+            laborOperationListBreadcrumb.addEventListener('click', (e) => {
+                const link = e.target.closest('.breadcrumb-link');
+                if (!link) return;
+                e.preventDefault();
+                const step = link.getAttribute('data-step');
+                if (step === 'VIN') {
+                    AppState.clearLaborDirectPathState();
+                    UI.showVinNavigation();
+                } else if (step === 'Labor') {
+                    UI.showLaborProviderSelectionDirect();
+                }
+            });
+        }
+        
+        // Fetch labor details (from list view)
+        const fetchLaborDetailsBtn = document.getElementById('fetchLaborDetailsBtn');
+        if (fetchLaborDetailsBtn) {
+            fetchLaborDetailsBtn.addEventListener('click', async () => {
+                const selectedIds = AppState.getSelectedLaborOperationIds();
+                if (!selectedIds || selectedIds.size === 0) {
+                    Utils.showStatus('⚠️ Please select at least one operation', 'warning');
+                    return;
+                }
+                const provider = AppState.getLaborOperationsProvider();
+                try {
+                    Utils.showStatus('🔄 Fetching labor details...', 'warning');
+                    UI.showLaborOperationsView();
+                    if (AppState.getLaborDirectPath()) {
+                        const bcTree = document.getElementById('breadcrumbTreeFromLabor');
+                        if (bcTree) bcTree.textContent = 'Operation List';
+                        const backBtn = document.getElementById('backToFetchOptionsFromLaborBtn');
+                        if (backBtn) backBtn.textContent = '← Back to List';
+                    }
+                    const allDetails = [];
+                    for (const opId of selectedIds) {
+                        const data = await API.getLaborOperationById(provider, opId);
+                        if (data && Array.isArray(data)) {
+                            allDetails.push(...data);
+                        }
+                    }
+                    AppState.setLaborDetails(allDetails);
+                    AppState.setLaborOperations(allDetails);
+                    if (provider === 'motor') {
+                        UI.renderLaborOperations(allDetails, provider);
+                    } else {
+                        UI.renderLaborDetailsMitchell(allDetails, provider);
+                    }
+                    Utils.showStatus(`✓ Loaded details for ${allDetails.length} operation(s)`, 'success');
+                } catch (error) {
+                    console.error('Labor details error:', error);
+                    Utils.showStatus('✗ Failed to load labor details: ' + (error.message || 'Unknown error'), 'error');
+                    const listEl = document.getElementById('laborOperationsList');
+                    if (listEl) {
+                        listEl.innerHTML = `<div style="padding: 20px; text-align: center; color: #dc3545;"><p>${Utils.escapeHtml(error.message || 'Unknown error')}</p></div>`;
+                    }
+                    Utils.setDisplay('laborLoading', 'none');
+                    Utils.setDisplay('laborContent', 'block');
+                }
             });
         }
         
@@ -319,11 +436,16 @@ const Events = (() => {
         if (breadcrumbTreeFromProvider) {
             breadcrumbTreeFromProvider.addEventListener('click', (e) => {
                 e.preventDefault();
-                const route = AppState.getSearchRoute();
-                if (route === 'search') {
-                    UI.showPartsSearchView();
+                if (AppState.getLaborDirectPath()) {
+                    AppState.clearLaborDirectPathState();
+                    UI.showVinNavigation();
                 } else {
-                    UI.showTreeView();
+                    const route = AppState.getSearchRoute();
+                    if (route === 'search') {
+                        UI.showPartsSearchView();
+                    } else {
+                        UI.showTreeView();
+                    }
                 }
             });
         }
@@ -341,11 +463,15 @@ const Events = (() => {
         if (breadcrumbTreeFromLabor) {
             breadcrumbTreeFromLabor.addEventListener('click', (e) => {
                 e.preventDefault();
-                const route = AppState.getSearchRoute();
-                if (route === 'search') {
-                    UI.showPartsSearchView();
+                if (AppState.getLaborDirectPath()) {
+                    UI.showLaborOperationListView(AppState.getLaborOperationsProvider());
                 } else {
-                    UI.showTreeView();
+                    const route = AppState.getSearchRoute();
+                    if (route === 'search') {
+                        UI.showPartsSearchView();
+                    } else {
+                        UI.showTreeView();
+                    }
                 }
             });
         }
@@ -607,6 +733,14 @@ const Events = (() => {
         if (changeVinBtn) {
             changeVinBtn.addEventListener('click', () => {
                 UI.showVinForm();
+            });
+        }
+        
+        // Labor Operations (direct path from VIN)
+        const laborDirectBtn = document.getElementById('laborDirectBtn');
+        if (laborDirectBtn) {
+            laborDirectBtn.addEventListener('click', () => {
+                UI.showLaborProviderSelectionDirect();
             });
         }
         
