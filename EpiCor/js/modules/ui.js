@@ -3,19 +3,53 @@ const UI = (() => {
     // View Management
     const showLoginForm = () => {
         document.getElementById('loginForm').classList.remove('hidden');
+        document.getElementById('loginForm').style.display = 'block';
         document.getElementById('vinForm').classList.add('hidden');
+        document.getElementById('vinForm').style.display = 'none';
+        document.getElementById('vinNavigation').classList.add('hidden');
+        document.getElementById('vinNavigation').style.display = 'none';
         document.getElementById('treeView').classList.add('hidden');
+        document.getElementById('treeView').style.display = 'none';
         document.getElementById('tree').style.display = 'none';
+        document.getElementById('manufacturerSelection').classList.add('hidden');
+        document.getElementById('manufacturerSelection').style.display = 'none';
+        document.getElementById('partsView').classList.add('hidden');
+        document.getElementById('partsView').style.display = 'none';
+        document.getElementById('partsSearchView').classList.add('hidden');
+        document.getElementById('partsSearchView').style.display = 'none';
+        document.getElementById('fetchOptionsView').classList.add('hidden');
+        document.getElementById('fetchOptionsView').style.display = 'none';
+        document.getElementById('laborProviderSelection').classList.add('hidden');
+        document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationsView').classList.add('hidden');
+        document.getElementById('laborOperationsView').style.display = 'none';
+        document.getElementById('progressSummary').classList.add('hidden');
         document.querySelector('.controls').style.display = 'none';
     };
     
     const showVinForm = () => {
         document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('loginForm').style.display = 'none';
         document.getElementById('vinForm').classList.remove('hidden');
+        document.getElementById('vinForm').style.display = 'block';
+        document.getElementById('vinNavigation').classList.add('hidden');
+        document.getElementById('vinNavigation').style.display = 'none';
         document.getElementById('treeView').classList.add('hidden');
+        document.getElementById('treeView').style.display = 'none';
         document.getElementById('tree').style.display = 'none';
         document.getElementById('manufacturerSelection').classList.add('hidden');
+        document.getElementById('manufacturerSelection').style.display = 'none';
         document.getElementById('partsView').classList.add('hidden');
+        document.getElementById('partsView').style.display = 'none';
+        document.getElementById('partsSearchView').classList.add('hidden');
+        document.getElementById('partsSearchView').style.display = 'none';
+        document.getElementById('fetchOptionsView').classList.add('hidden');
+        document.getElementById('fetchOptionsView').style.display = 'none';
+        document.getElementById('laborProviderSelection').classList.add('hidden');
+        document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationsView').classList.add('hidden');
+        document.getElementById('laborOperationsView').style.display = 'none';
+        document.getElementById('progressSummary').classList.add('hidden');
         document.querySelector('.controls').style.display = 'none';
     };
     
@@ -30,10 +64,24 @@ const UI = (() => {
         
         // Hide all other views
         document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('loginForm').style.display = 'none';
         document.getElementById('vinForm').classList.add('hidden');
+        document.getElementById('vinForm').style.display = 'none';
+        document.getElementById('vinNavigation').classList.add('hidden');
+        document.getElementById('vinNavigation').style.display = 'none';
         document.getElementById('manufacturerSelection').classList.add('hidden');
         document.getElementById('manufacturerSelection').style.display = 'none';
         document.getElementById('partsView').classList.add('hidden');
+        document.getElementById('partsView').style.display = 'none';
+        document.getElementById('partsSearchView').classList.add('hidden');
+        document.getElementById('partsSearchView').style.display = 'none';
+        document.getElementById('fetchOptionsView').classList.add('hidden');
+        document.getElementById('fetchOptionsView').style.display = 'none';
+        document.getElementById('laborProviderSelection').classList.add('hidden');
+        document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationsView').classList.add('hidden');
+        document.getElementById('laborOperationsView').style.display = 'none';
+        document.getElementById('progressSummary').classList.add('hidden');
         
         // Show tree view wrapper and tree - remove hidden class and ensure display
         document.getElementById('treeView').classList.remove('hidden');
@@ -98,11 +146,26 @@ const UI = (() => {
     
     const showManufacturerSelection = () => {
         document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('loginForm').style.display = 'none';
         document.getElementById('vinForm').classList.add('hidden');
+        document.getElementById('vinForm').style.display = 'none';
+        document.getElementById('vinNavigation').classList.add('hidden');
+        document.getElementById('vinNavigation').style.display = 'none';
         document.getElementById('treeView').classList.add('hidden');
         document.getElementById('treeView').style.display = 'none';
         document.getElementById('tree').classList.add('hidden');
         document.getElementById('tree').style.display = 'none';
+        document.getElementById('partsView').classList.add('hidden');
+        document.getElementById('partsView').style.display = 'none';
+        document.getElementById('partsSearchView').classList.add('hidden');
+        document.getElementById('partsSearchView').style.display = 'none';
+        document.getElementById('fetchOptionsView').classList.add('hidden');
+        document.getElementById('fetchOptionsView').style.display = 'none';
+        document.getElementById('laborProviderSelection').classList.add('hidden');
+        document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationsView').classList.add('hidden');
+        document.getElementById('laborOperationsView').style.display = 'none';
+        document.getElementById('progressSummary').classList.add('hidden');
         document.querySelector('.controls').style.display = 'none';
         document.getElementById('manufacturerSelection').classList.remove('hidden');
         document.getElementById('manufacturerSelection').style.display = 'block';
@@ -131,11 +194,26 @@ const UI = (() => {
     
     const showPartsView = () => {
         document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('loginForm').style.display = 'none';
         document.getElementById('vinForm').classList.add('hidden');
+        document.getElementById('vinForm').style.display = 'none';
+        document.getElementById('vinNavigation').classList.add('hidden');
+        document.getElementById('vinNavigation').style.display = 'none';
         document.getElementById('treeView').classList.add('hidden');
+        document.getElementById('treeView').style.display = 'none';
         document.getElementById('tree').style.display = 'none';
-        document.querySelector('.controls').style.display = 'none';
         document.getElementById('manufacturerSelection').classList.add('hidden');
+        document.getElementById('manufacturerSelection').style.display = 'none';
+        document.getElementById('partsSearchView').classList.add('hidden');
+        document.getElementById('partsSearchView').style.display = 'none';
+        document.getElementById('fetchOptionsView').classList.add('hidden');
+        document.getElementById('fetchOptionsView').style.display = 'none';
+        document.getElementById('laborProviderSelection').classList.add('hidden');
+        document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationsView').classList.add('hidden');
+        document.getElementById('laborOperationsView').style.display = 'none';
+        document.getElementById('progressSummary').classList.add('hidden');
+        document.querySelector('.controls').style.display = 'none';
         document.getElementById('partsView').classList.remove('hidden');
         document.getElementById('partsView').style.display = 'block';
         
@@ -1295,23 +1373,53 @@ const UI = (() => {
     // Parts Search View Management
     const showVinNavigation = () => {
         document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('loginForm').style.display = 'none';
         document.getElementById('vinForm').classList.add('hidden');
+        document.getElementById('vinForm').style.display = 'none';
         document.getElementById('vinNavigation').classList.remove('hidden');
+        document.getElementById('vinNavigation').style.display = 'block';
         document.getElementById('treeView').classList.add('hidden');
-        document.getElementById('partsSearchView').classList.add('hidden');
+        document.getElementById('treeView').style.display = 'none';
         document.getElementById('tree').style.display = 'none';
+        document.getElementById('manufacturerSelection').classList.add('hidden');
+        document.getElementById('manufacturerSelection').style.display = 'none';
+        document.getElementById('partsView').classList.add('hidden');
+        document.getElementById('partsView').style.display = 'none';
+        document.getElementById('partsSearchView').classList.add('hidden');
+        document.getElementById('partsSearchView').style.display = 'none';
+        document.getElementById('fetchOptionsView').classList.add('hidden');
+        document.getElementById('fetchOptionsView').style.display = 'none';
+        document.getElementById('laborProviderSelection').classList.add('hidden');
+        document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationsView').classList.add('hidden');
+        document.getElementById('laborOperationsView').style.display = 'none';
+        document.getElementById('progressSummary').classList.add('hidden');
         document.querySelector('.controls').style.display = 'none';
     };
     
     const showPartsSearchView = () => {
         document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('loginForm').style.display = 'none';
         document.getElementById('vinForm').classList.add('hidden');
+        document.getElementById('vinForm').style.display = 'none';
         document.getElementById('vinNavigation').classList.add('hidden');
+        document.getElementById('vinNavigation').style.display = 'none';
         document.getElementById('treeView').classList.add('hidden');
+        document.getElementById('treeView').style.display = 'none';
         document.getElementById('tree').style.display = 'none';
         document.getElementById('manufacturerSelection').classList.add('hidden');
+        document.getElementById('manufacturerSelection').style.display = 'none';
         document.getElementById('partsView').classList.add('hidden');
+        document.getElementById('partsView').style.display = 'none';
         document.getElementById('partsSearchView').classList.remove('hidden');
+        document.getElementById('partsSearchView').style.display = 'block';
+        document.getElementById('fetchOptionsView').classList.add('hidden');
+        document.getElementById('fetchOptionsView').style.display = 'none';
+        document.getElementById('laborProviderSelection').classList.add('hidden');
+        document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationsView').classList.add('hidden');
+        document.getElementById('laborOperationsView').style.display = 'none';
+        document.getElementById('progressSummary').classList.add('hidden');
         document.querySelector('.controls').style.display = 'none';
         
         // Focus on search input
@@ -1396,11 +1504,281 @@ const UI = (() => {
         document.getElementById('partsSearchResultsContainer').style.display = 'block';
     };
     
+    const showFetchOptionsView = () => {
+        // Hide all other views - both class and display
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('vinForm').classList.add('hidden');
+        document.getElementById('vinForm').style.display = 'none';
+        document.getElementById('vinNavigation').classList.add('hidden');
+        document.getElementById('vinNavigation').style.display = 'none';
+        document.getElementById('treeView').classList.add('hidden');
+        document.getElementById('treeView').style.display = 'none';
+        document.getElementById('tree').style.display = 'none';
+        document.getElementById('manufacturerSelection').classList.add('hidden');
+        document.getElementById('manufacturerSelection').style.display = 'none';
+        document.getElementById('partsView').classList.add('hidden');
+        document.getElementById('partsView').style.display = 'none';
+        document.getElementById('partsSearchView').classList.add('hidden');
+        document.getElementById('partsSearchView').style.display = 'none';
+        document.getElementById('laborProviderSelection').classList.add('hidden');
+        document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('laborOperationsView').classList.add('hidden');
+        document.getElementById('laborOperationsView').style.display = 'none';
+        document.getElementById('progressSummary').classList.add('hidden');
+        document.querySelector('.controls').style.display = 'none';
+        
+        // Show fetch options view
+        document.getElementById('fetchOptionsView').classList.remove('hidden');
+        document.getElementById('fetchOptionsView').style.display = 'block';
+        
+        // Update the catalog selection count
+        const selectedObjects = AppState.getSelectedCatalogObjects();
+        const countEl = document.getElementById('fetchOptionsCount');
+        if (countEl) {
+            countEl.textContent = `📋 Catalog objects selected: ${selectedObjects.length}`;
+        }
+    };
+    
+    const showLaborProviderSelection = () => {
+        document.getElementById('fetchOptionsView').classList.add('hidden');
+        document.getElementById('fetchOptionsView').style.display = 'none';
+        document.getElementById('progressSummary').classList.add('hidden');
+        document.getElementById('laborProviderSelection').classList.remove('hidden');
+        document.getElementById('laborProviderSelection').style.display = 'block';
+    };
+    
+    const showLaborOperationsView = () => {
+        // Hide other views
+        document.getElementById('fetchOptionsView').classList.add('hidden');
+        document.getElementById('fetchOptionsView').style.display = 'none';
+        document.getElementById('laborProviderSelection').classList.add('hidden');
+        document.getElementById('laborProviderSelection').style.display = 'none';
+        document.getElementById('progressSummary').classList.add('hidden');
+        
+        // Show labor operations view
+        document.getElementById('laborOperationsView').classList.remove('hidden');
+        document.getElementById('laborOperationsView').style.display = 'block';
+        
+        // Show loading state
+        Utils.setDisplay('laborLoading', 'block');
+        Utils.setDisplay('laborContent', 'none');
+    };
+    
+    const renderLaborOperations = (operations, provider) => {
+        const listEl = document.getElementById('laborOperationsList');
+        const countEl = document.getElementById('laborOperationsCount');
+        const providerNameEl = document.getElementById('laborProviderName');
+        const subtitleEl = document.getElementById('laborSubtitle');
+        
+        if (!listEl) return;
+        
+        // Update provider info
+        const providerLabel = provider === 'motor' ? 'Motor API' : 'Mitchell API';
+        if (providerNameEl) {
+            providerNameEl.textContent = `Labor Operations (${providerLabel})`;
+        }
+        if (subtitleEl) {
+            subtitleEl.textContent = `Labor times and operation details from ${providerLabel}`;
+        }
+        
+        if (!operations || operations.length === 0) {
+            listEl.innerHTML = '<div style="padding: 20px; text-align: center; color: #6c757d;"><p>No labor operations found</p></div>';
+            if (countEl) countEl.textContent = '0 operations loaded';
+            return;
+        }
+        
+        let html = '';
+        const operationMap = new Map();
+        
+        // Group operations by operationID
+        operations.forEach((item) => {
+            const op = item.operation;
+            if (!operationMap.has(op.operationID)) {
+                operationMap.set(op.operationID, {
+                    operationID: op.operationID,
+                    description: op.description,
+                    literalName: op.literalName,
+                    positions: [],
+                    skillName: item.requiredSkill?.name || 'N/A',
+                    skillDesc: item.requiredSkill?.description || ''
+                });
+            }
+            operationMap.get(op.operationID).positions.push({
+                position: op.position?.position || 'N/A',
+                positionID: op.position?.positionID || 0,
+                parts: op.parts || [],
+                effort: item.operationEffort || {}
+            });
+        });
+        
+        // Render each unique operation
+        operationMap.forEach((opData) => {
+            const operationId = `labor-op-${opData.operationID}`;
+            
+            html += `
+                <div class="labor-operation-card">
+                    <div class="labor-operation-header" onclick="document.getElementById('${operationId}').classList.toggle('expanded'); this.classList.toggle('expanded');">
+                        <div class="labor-operation-title">
+                            <span class="labor-op-id">${opData.operationID}</span>
+                            <div class="labor-op-info">
+                                <h4>${Utils.escapeHtml(opData.literalName)}</h4>
+                                <p class="labor-op-desc">${Utils.escapeHtml(opData.description)}</p>
+                            </div>
+                        </div>
+                        <span class="labor-expand-icon">▶</span>
+                    </div>
+                    <div class="labor-operation-detail" id="${operationId}">
+                        <div class="labor-detail-section">
+                            <h5>Positions</h5>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px;">
+            `;
+            
+            // Get unique positions
+            const uniquePositions = new Map();
+            opData.positions.forEach(p => {
+                const key = `${p.position}-${p.positionID}`;
+                if (!uniquePositions.has(key)) {
+                    uniquePositions.set(key, p);
+                }
+            });
+            
+            uniquePositions.forEach((p) => {
+                html += `
+                    <div class="labor-position-badge">
+                        <span>${Utils.escapeHtml(p.position)}</span>
+                    </div>
+                `;
+            });
+            
+            html += `
+                            </div>
+                            <h5>Parts Involved</h5>
+                            <div style="margin-bottom: 15px;">
+            `;
+            
+            // Get unique parts
+            const uniqueParts = new Map();
+            opData.positions.forEach(p => {
+                p.parts.forEach(part => {
+                    const key = part.partTerminologyID;
+                    if (!uniqueParts.has(key)) {
+                        uniqueParts.set(key, part);
+                    }
+                });
+            });
+            
+            if (uniqueParts.size > 0) {
+                uniqueParts.forEach((part) => {
+                    html += `<div class="labor-part-item">• ${Utils.escapeHtml(part.partTerminologyName)}</div>`;
+                });
+            } else {
+                html += '<div style="color: #6c757d; font-style: italic;">No parts associated</div>';
+            }
+            
+            html += `
+                            </div>
+                            <h5>Labor Information</h5>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            `;
+            
+            // Labor times from first position (they should be same for same operation)
+            if (opData.positions.length > 0) {
+                const effort = opData.positions[0].effort;
+                html += `
+                    <div class="labor-time-box">
+                        <div class="labor-time-label">Base Est. Work Time</div>
+                        <div class="labor-time-value">${effort.baseEstWorkTime || '0'} hrs</div>
+                    </div>
+                    <div class="labor-time-box">
+                        <div class="labor-time-label">All Est. Work Time</div>
+                        <div class="labor-time-value">${effort.allEstWorkTime || '0'} hrs</div>
+                    </div>
+                    <div class="labor-time-box">
+                        <div class="labor-time-label">Base Warranty Time</div>
+                        <div class="labor-time-value">${effort.baseWarrantyTime || '0'} hrs</div>
+                    </div>
+                    <div class="labor-time-box">
+                        <div class="labor-time-label">All Warranty Time</div>
+                        <div class="labor-time-value">${effort.allWarrantyTime || '0'} hrs</div>
+                    </div>
+                `;
+            }
+            
+            html += `
+                            </div>
+                            <h5>Scope & Notes</h5>
+                            <div style="margin-bottom: 15px;">
+            `;
+            
+            if (opData.positions.length > 0 && opData.positions[0].effort) {
+                const effort = opData.positions[0].effort;
+                if (effort.baseAdditionalDesc) {
+                    html += `<div class="labor-additional-desc"><strong>Base:</strong> ${Utils.escapeHtml(effort.baseAdditionalDesc.description)}</div>`;
+                }
+                if (effort.allAdditionalDesc) {
+                    html += `<div class="labor-additional-desc"><strong>All:</strong> ${Utils.escapeHtml(effort.allAdditionalDesc.description)}</div>`;
+                }
+                if (effort.footnote && effort.footnote.length > 0) {
+                    html += '<div class="labor-footnote-title">Footnotes:</div>';
+                    effort.footnote.forEach(fn => {
+                        html += `<div class="labor-footnote">• ${Utils.escapeHtml(fn.description)}</div>`;
+                    });
+                }
+            }
+            
+            html += `
+                            </div>
+                            <h5>Required Skill</h5>
+                            <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                                <div style="font-weight: 600;">${Utils.escapeHtml(opData.skillName)}</div>
+                                <div style="font-size: 13px; color: #6c757d; margin-top: 5px;">${Utils.escapeHtml(opData.skillDesc)}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        listEl.innerHTML = html;
+        if (countEl) countEl.textContent = `${operationMap.size} operation${operationMap.size !== 1 ? 's' : ''} loaded`;
+        
+        // Hide loading, show content
+        Utils.setDisplay('laborLoading', 'none');
+        Utils.setDisplay('laborContent', 'block');
+    };
+    
+    const downloadLaborOperations = () => {
+        const operations = AppState.getLaborOperations();
+        if (!operations || operations.length === 0) {
+            Utils.showStatus('⚠️ No labor operations to download', 'warning');
+            return;
+        }
+        
+        const provider = AppState.getLaborOperationsProvider();
+        const filename = `labor-operations-${provider}-${new Date().toISOString().split('T')[0]}.json`;
+        const dataStr = JSON.stringify(operations, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        Utils.showStatus('✓ Labor operations downloaded successfully!', 'success');
+    };
+    
     return {
         showLoginForm,
         showVinForm,
         showVinNavigation,
         showTreeView,
+        showFetchOptionsView,
+        showLaborProviderSelection,
+        showLaborOperationsView,
+        renderLaborOperations,
+        downloadLaborOperations,
         showManufacturerSelection,
         showPartsView,
         showPartsSearchView,

@@ -131,6 +131,114 @@
                 </div>
             </div>
             
+            <!-- Fetch Options Selection Modal -->
+            <div id="fetchOptionsView" class="auth-form hidden">
+                <div class="breadcrumb" id="fetchOptionsBreadcrumb">
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbVinFromFetchOptions">VIN</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbTreeFromFetchOptions">Catalog Tree</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item active">
+                        <span>Select Data Type</span>
+                    </span>
+                </div>
+                <div class="nav-header">
+                    <div class="nav-title">
+                        <h2>📊 What would you like to fetch?</h2>
+                        <span class="subtitle">Choose between parts fitment or labor operations</span>
+                    </div>
+                    <button class="btn btn-secondary" id="backToCatalogFromOptionsBtn">← Back to Catalog</button>
+                </div>
+                <div style="padding: 30px; text-align: center;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <button class="btn btn-primary fetch-option-btn" id="fetchPartsOption" style="padding: 30px; font-size: 16px; height: auto; line-height: 1.5; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            🔧 Parts Fitment<br><span style="font-size: 13px; opacity: 0.9;">Browse and search available parts</span>
+                        </button>
+                        <button class="btn btn-warning fetch-option-btn" id="fetchLaborOption" style="padding: 30px; font-size: 16px; height: auto; line-height: 1.5; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; background: linear-gradient(135deg, #FF9F43 0%, #FF6B6B 100%); color: white; border: none;">
+                            ⏱️ Labor Operations<br><span style="font-size: 13px; opacity: 0.9;">View labor times and operation details</span>
+                        </button>
+                    </div>
+                    <span id="fetchOptionsCount" style="font-weight: 600; color: #666; display: block;">📋 Catalog objects selected: 0</span>
+                </div>
+            </div>
+            
+            <!-- Labor Operations API Provider Selection -->
+            <div id="laborProviderSelection" class="auth-form hidden">
+                <div class="breadcrumb" id="laborProviderBreadcrumb">
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbVinFromProvider">VIN</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbTreeFromProvider">Catalog Tree</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item active">
+                        <span>Select API Provider</span>
+                    </span>
+                </div>
+                <div class="nav-header">
+                    <div class="nav-title">
+                        <h2>🔌 Select Labor Data Provider</h2>
+                        <span class="subtitle">Choose the data source for labor operation information</span>
+                    </div>
+                    <button class="btn btn-secondary" id="backToFetchOptionsBtn">← Back</button>
+                </div>
+                <div style="padding: 30px; text-align: center;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <button class="btn btn-info provider-option-btn" id="motorProviderBtn" style="padding: 30px; font-size: 16px; height: auto; line-height: 1.5; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; background: linear-gradient(135deg, #17A2B8 0%, #138496 100%); color: white; border: none;">
+                            ⚙️ Motor API<br><span style="font-size: 13px; opacity: 0.9;">Motor labor operation database</span>
+                        </button>
+                        <button class="btn btn-secondary provider-option-btn" id="mitchellProviderBtn" style="padding: 30px; font-size: 16px; height: auto; line-height: 1.5; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; background: linear-gradient(135deg, #6C757D 0%, #5A6268 100%); color: white; border: none;">
+                            📋 Mitchell API<br><span style="font-size: 13px; opacity: 0.9;">Mitchell labor operation database</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Labor Operations Display View -->
+            <div id="laborOperationsView" class="auth-form hidden">
+                <div class="breadcrumb" id="laborOperationsBreadcrumb">
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbVinFromLabor">VIN</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item">
+                        <a href="#" class="breadcrumb-link" id="breadcrumbTreeFromLabor">Catalog Tree</a>
+                    </span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-item active">
+                        <span id="laborProviderName">Labor Operations</span>
+                    </span>
+                </div>
+                <div class="nav-header">
+                    <div class="nav-title">
+                        <h2>⏱️ Labor Operations</h2>
+                        <span class="subtitle" id="laborSubtitle">Labor times and operation details</span>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" id="downloadLaborOperationsBtn">📥 Download as JSON</button>
+                        <button class="btn btn-secondary" id="backToFetchOptionsFromLaborBtn">← Back</button>
+                    </div>
+                </div>
+                <div id="laborLoading" class="upload-loader" style="display: none;">
+                    <div class="loader-content">
+                        <div class="upload-spinner"></div>
+                        <div class="upload-info">Loading labor operations...</div>
+                    </div>
+                </div>
+                <div id="laborContent" style="display: none;">
+                    <div id="laborOperationsList" style="max-height: 600px; overflow-y: auto;"></div>
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                        <span id="laborOperationsCount" style="font-weight: 600; color: #666;">0 operations loaded</span>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Manufacturer Selection Form -->
             <div id="manufacturerSelection" class="auth-form hidden">
                 <div class="breadcrumb" id="manufacturerBreadcrumb">

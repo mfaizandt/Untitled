@@ -191,7 +191,7 @@ const Events = (() => {
             });
         }
         
-        // Catalog Tree Navigation
+        // Catalog Tree Navigation - Show fetch options instead
         const nextToManufacturersBtn = document.getElementById('nextToManufacturersBtn');
         if (nextToManufacturersBtn) {
             nextToManufacturersBtn.addEventListener('click', () => {
@@ -199,10 +199,16 @@ const Events = (() => {
                     Utils.showStatus('⚠️ Please select at least one catalog object or group', 'warning');
                     return;
                 }
+                UI.showFetchOptionsView();
+            });
+        }
+        
+        // Fetch Options - Parts
+        const fetchPartsOption = document.getElementById('fetchPartsOption');
+        if (fetchPartsOption) {
+            fetchPartsOption.addEventListener('click', () => {
                 AppState.setAutoAdvanceFlag(true);
-                // Track that user came from catalog route
                 AppState.setSearchRoute('catalog');
-                // Clear positionIds when switching to catalog route
                 AppState.clearPositionIds();
                 const catalogObjectIDs = AppState.getSelectedCatalogObjects().map(obj => obj.catalogObjectID);
                 const catalogGroupIDs = AppState.getSelectedGroups().map(grp => grp.groupID);
@@ -210,7 +216,138 @@ const Events = (() => {
             });
         }
         
-        // Back to Tree/Search button (dynamic based on route)
+        // Fetch Options - Labor Operations
+        const fetchLaborOption = document.getElementById('fetchLaborOption');
+        if (fetchLaborOption) {
+            fetchLaborOption.addEventListener('click', () => {
+                UI.showLaborProviderSelection();
+            });
+        }
+        
+        // Labor Provider - Motor
+        const motorProviderBtn = document.getElementById('motorProviderBtn');
+        if (motorProviderBtn) {
+            motorProviderBtn.addEventListener('click', () => {
+                const catalogObjectIDs = AppState.getSelectedCatalogObjects().map(obj => obj.catalogObjectID);
+                AppState.setLaborOperationsProvider('motor');
+                API.getLaborOperations(catalogObjectIDs, 'motor');
+            });
+        }
+        
+        // Labor Provider - Mitchell
+        const mitchellProviderBtn = document.getElementById('mitchellProviderBtn');
+        if (mitchellProviderBtn) {
+            mitchellProviderBtn.addEventListener('click', () => {
+                const catalogObjectIDs = AppState.getSelectedCatalogObjects().map(obj => obj.catalogObjectID);
+                AppState.setLaborOperationsProvider('mitchell');
+                API.getLaborOperations(catalogObjectIDs, 'mitchell');
+            });
+        }
+        
+        // Back navigation from fetch options
+        const backToCatalogFromOptions = document.getElementById('backToCatalogFromOptionsBtn');
+        if (backToCatalogFromOptions) {
+            backToCatalogFromOptions.addEventListener('click', () => {
+                const route = AppState.getSearchRoute();
+                if (route === 'search') {
+                    UI.showPartsSearchView();
+                } else {
+                    UI.showTreeView();
+                }
+            });
+        }
+        
+        // Back navigation from labor provider selection
+        const backToFetchOptions = document.getElementById('backToFetchOptionsBtn');
+        if (backToFetchOptions) {
+            backToFetchOptions.addEventListener('click', () => {
+                UI.showFetchOptionsView();
+            });
+        }
+        
+        // Back navigation from labor operations
+        const backToFetchOptionsFromLabor = document.getElementById('backToFetchOptionsFromLaborBtn');
+        if (backToFetchOptionsFromLabor) {
+            backToFetchOptionsFromLabor.addEventListener('click', () => {
+                UI.showFetchOptionsView();
+            });
+        }
+        
+        // Download labor operations
+        const downloadLaborBtn = document.getElementById('downloadLaborOperationsBtn');
+        if (downloadLaborBtn) {
+            downloadLaborBtn.addEventListener('click', () => {
+                UI.downloadLaborOperations();
+            });
+        }
+        
+        // Breadcrumb links for fetch options view
+        const breadcrumbVinFromFetchOptions = document.getElementById('breadcrumbVinFromFetchOptions');
+        if (breadcrumbVinFromFetchOptions) {
+            breadcrumbVinFromFetchOptions.addEventListener('click', (e) => {
+                e.preventDefault();
+                UI.showVinForm();
+            });
+        }
+        
+        const breadcrumbTreeFromFetchOptions = document.getElementById('breadcrumbTreeFromFetchOptions');
+        if (breadcrumbTreeFromFetchOptions) {
+            breadcrumbTreeFromFetchOptions.addEventListener('click', (e) => {
+                e.preventDefault();
+                const route = AppState.getSearchRoute();
+                if (route === 'search') {
+                    UI.showPartsSearchView();
+                } else {
+                    UI.showTreeView();
+                }
+            });
+        }
+        
+        // Breadcrumb links for labor provider view
+        const breadcrumbVinFromProvider = document.getElementById('breadcrumbVinFromProvider');
+        if (breadcrumbVinFromProvider) {
+            breadcrumbVinFromProvider.addEventListener('click', (e) => {
+                e.preventDefault();
+                UI.showVinForm();
+            });
+        }
+        
+        const breadcrumbTreeFromProvider = document.getElementById('breadcrumbTreeFromProvider');
+        if (breadcrumbTreeFromProvider) {
+            breadcrumbTreeFromProvider.addEventListener('click', (e) => {
+                e.preventDefault();
+                const route = AppState.getSearchRoute();
+                if (route === 'search') {
+                    UI.showPartsSearchView();
+                } else {
+                    UI.showTreeView();
+                }
+            });
+        }
+        
+        // Breadcrumb links for labor operations view
+        const breadcrumbVinFromLabor = document.getElementById('breadcrumbVinFromLabor');
+        if (breadcrumbVinFromLabor) {
+            breadcrumbVinFromLabor.addEventListener('click', (e) => {
+                e.preventDefault();
+                UI.showVinForm();
+            });
+        }
+        
+        const breadcrumbTreeFromLabor = document.getElementById('breadcrumbTreeFromLabor');
+        if (breadcrumbTreeFromLabor) {
+            breadcrumbTreeFromLabor.addEventListener('click', (e) => {
+                e.preventDefault();
+                const route = AppState.getSearchRoute();
+                if (route === 'search') {
+                    UI.showPartsSearchView();
+                } else {
+                    UI.showTreeView();
+                }
+            });
+        }
+        
+        // Back to Tree/Search button (dynamic based on route) - updated for new views
         const backToTreeBtn = document.getElementById('backToTreeBtn');
         if (backToTreeBtn) {
             backToTreeBtn.addEventListener('click', (e) => {
@@ -587,18 +724,14 @@ const Events = (() => {
         AppState.setSelectedCatalogObjects([catalogObject]);
         AppState.setAPIResponse('vinDecode', AppState.getVINDecodeResponse());
         
-        // Set auto-advance flag to automatically proceed to parts selection
-        AppState.setAutoAdvanceFlag(true);
-        
         // Track that user came from search route
         AppState.setSearchRoute('search');
         
-        // Hide search view to respect navigation
+        // Hide search view
         document.getElementById('partsSearchView').classList.add('hidden');
         
-        // Fetch manufacturers for this catalog object
-        Utils.showStatus('🔄 Loading manufacturers...', 'warning');
-        API.fetchManufacturers([catalogObjectID], []);
+        // Show fetch options instead of directly going to manufacturers
+        UI.showFetchOptionsView();
     };
     
     return {

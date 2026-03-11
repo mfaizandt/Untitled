@@ -40,6 +40,12 @@ const AppState = (() => {
         // Parts
         parts: [],
         
+        // Labor Operations
+        laborOperations: [],
+        laborOperationsProvider: null, // 'motor' or 'mitchell'
+        laborOperationsMotor: null,
+        laborOperationsMitchell: null,
+        
         // Progress tracking
         vinDecodeResponse: null,
         autoAdvanceToPartsScreen: false,
@@ -47,7 +53,8 @@ const AppState = (() => {
             vinDecode: null,
             categoryTree: null,
             manufacturers: null,
-            parts: null
+            parts: null,
+            laborOperations: null
         }
     };
     
@@ -72,7 +79,11 @@ const AppState = (() => {
         getPartsSearchInput: () => state.partsSearchInput,
         getSelectedPartType: () => state.selectedPartType,
         getSearchRoute: () => state.searchRoute,
-        getPositionIds: () => state.positionIds
+        getPositionIds: () => state.positionIds,
+        getLaborOperations: () => state.laborOperations,
+        getLaborOperationsProvider: () => state.laborOperationsProvider,
+        getLaborOperationsMotor: () => state.laborOperationsMotor,
+        getLaborOperationsMitchell: () => state.laborOperationsMitchell
     };
     
     // Setter methods
@@ -163,6 +174,16 @@ const AppState = (() => {
                     console.warn('Failed to remove selected part type from localStorage:', e);
                 }
             }
+        },
+        setLaborOperations: (operations) => state.laborOperations = operations,
+        setLaborOperationsProvider: (provider) => state.laborOperationsProvider = provider,
+        setLaborOperationsMotor: (data) => state.laborOperationsMotor = data,
+        setLaborOperationsMitchell: (data) => state.laborOperationsMitchell = data,
+        clearLaborOperations: () => {
+            state.laborOperations = [];
+            state.laborOperationsProvider = null;
+            state.laborOperationsMotor = null;
+            state.laborOperationsMitchell = null;
         },
         resetState: () => {
             state.selectedCatalogObjects = [];

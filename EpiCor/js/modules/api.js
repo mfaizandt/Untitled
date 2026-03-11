@@ -727,6 +727,128 @@ const API = (() => {
         }
     };
     
+    const getLaborOperations = async (catalogObjectIDs, provider) => {
+        if (!AppState.getToken() || !AppState.getVehicleConfig()) {
+            Utils.showStatus('✗ Please login and decode VIN first', 'error');
+            return;
+        }
+        
+        if (!catalogObjectIDs || catalogObjectIDs.length === 0) {
+            Utils.showStatus('✗ No catalog objects selected', 'error');
+            return;
+        }
+        
+        if (!provider || (provider !== 'motor' && provider !== 'mitchell')) {
+            Utils.showStatus('✗ Invalid API provider selected', 'error');
+            return;
+        }
+        
+        try {
+            UI.showLaborOperationsView();
+            Utils.showStatus('🔄 Fetching labor operations...', 'warning');
+            
+            const baseURL = AppState.getAPIBaseURL();
+            const catalogObjectIDsParam = catalogObjectIDs.join(',');
+            const endpoint = provider === 'motor' 
+                ? `/api/labor/motor/get-labor-operation-by-catalog-object-id`
+                : `/api/labor/mitchell/get-labor-operation-by-catalog-object-id`;
+            
+            const url = `${baseURL}${endpoint}?catalogObjectIDs=${encodeURIComponent(catalogObjectIDsParam)}`;
+            
+            // Ensure X-Vehicle-Configuration is a string, not an object
+            const vehicleConfigValue = AppState.getVehicleConfig();
+            const vehicleConfigHeader = typeof vehicleConfigValue === 'string' 
+                ? vehicleConfigValue 
+                : JSON.stringify(vehicleConfigValue);
+            
+            const headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${AppState.getToken()}`,
+                'X-Vehicle-Configuration': vehicleConfigHeader
+            };
+            
+            console.log(`🔄 Fetching labor operations from ${provider.toUpperCase()} API`);
+            console.log('URL:', url);
+            console.log('Headers (without auth):', { Accept: headers.Accept, 'Content-Type': headers['Content-Type'] });
+            
+            const response = await fetch(url, {
+                method: provider === 'motor' ? 'POST': 'GET',
+                headers: headers
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Labor API error (${response.status}):`, errorText);
+                
+                if (response.status === 401) {
+                    AppState.clearSession();
+                    Utils.showStatus('✗ Session expired. Please login again.', 'error');
+                    setTimeout(() => {
+                        UI.showLoginForm();
+                    }, 2000);
+                } else if (response.status === 403) {
+                    throw new Error(`Access Denied (403). Your account may not have permission to access the ${provider.toUpperCase()} API. ${errorText}`);
+                }
+                throw new Error(`Labor operations fetch failed: ${response.status} ${response.statusText}. ${errorText}`);
+            }
+            
+            const laborResponse = await response.json();
+            
+            // Store the labor operations response
+            AppState.setLaborOperations(laborResponse.data || []);
+            AppState.setLaborOperationsProvider(provider);
+            AppState.setAPIResponse('laborOperations', laborResponse);
+            
+            // Store provider-specific data
+            if (provider === 'motor') {
+                AppState.setLaborOperationsMotor(laborResponse.data || []);
+            } else {
+                AppState.setLaborOperationsMitchell(laborResponse.data || []);
+            }
+            
+            // Hide loading and show content
+            Utils.setDisplay('laborLoading', 'none');
+            Utils.setDisplay('laborContent', 'block');
+            
+            // Handle empty data case
+            const laborData = laborResponse.data || [];
+            if (laborData.length === 0) {
+                const listEl = document.getElementById('laborOperationsList');
+                if (listEl) {
+                    listEl.innerHTML = `
+                        <div style="padding: 20px; text-align: center; color: #666;">
+                            <p><strong>No labor operations found</strong></p>
+                            <p>The selected parts don't have associated labor operations.</p>
+                        </div>
+                    `;
+                }
+                Utils.showStatus('⚠️ No labor operations available for the selected parts', 'warning');
+            } else {
+                // Render the labor operations
+                UI.renderLaborOperations(laborData, provider);
+                Utils.showStatus(`✓ Loaded ${laborData.length} labor operations!`, 'success');
+            }
+            
+            UI.updateProgressSummary();
+            
+        } catch (error) {
+            console.error('Labor operations error:', error);
+            Utils.setDisplay('laborLoading', 'none');
+            Utils.setDisplay('laborContent', 'block');
+            const listEl = document.getElementById('laborOperationsList');
+            if (listEl) {
+                listEl.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #dc3545;">
+                        <p><strong>Error loading labor operations</strong></p>
+                        <p>${Utils.escapeHtml(error.message || 'Unknown error occurred')}</p>
+                    </div>
+                `;
+            }
+            Utils.showStatus('✗ Failed to load labor operations: ' + (error.message || 'Unknown error'), 'error');
+        }
+    };
+    
     return {
         loginUser,
         decodeVin,
@@ -736,6 +858,7 @@ const API = (() => {
         fetchParts,
         logout,
         fetchPartDetails,
-        searchParts
+        searchParts,
+        getLaborOperations
     };
 })();
