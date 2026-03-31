@@ -1733,6 +1733,51 @@ const UI = (() => {
         return html;
     };
     
+    const mitchellCombinationOperationsHtml = (combinationOps) => {
+        if (!combinationOps || combinationOps.length === 0) return '';
+        let html = `<div style="margin-top: 15px;">`;
+        html += `<h5 style="margin: 0 0 10px 0; color: #333;">Combination operations</h5>`;
+        combinationOps.forEach((combo) => {
+            const hours = combo.mitchellLaborTime ?? '-';
+            const nonMvc = combo.nonMvcQualifers || '';
+            html += `<div style="background: white; padding: 12px; border-radius: 4px; border-left: 3px solid #6c757d; margin-bottom: 10px;">`;
+            html += `<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; margin-bottom: 6px;">`;
+            html += `<span style="font-weight: 600; color: #333;">${Utils.escapeHtml(combo.componentName || '-')}</span>`;
+            html += `<span style="font-size: 12px; color: #667eea;">ID ${Utils.escapeHtml(String(combo.operationID ?? ''))}</span>`;
+            html += `<span style="font-size: 12px; color: #666;">${Utils.escapeHtml(combo.operationTypeName || '')}</span>`;
+            html += `<span style="margin-left: auto; font-weight: 600; color: #28a745;">${Utils.escapeHtml(String(hours))} hrs</span>`;
+            html += `</div>`;
+            if (nonMvc) {
+                html += `<div style="font-size: 12px; color: #666; margin-bottom: 4px;">Non-MVC: <span style="background: #e7f3ff; color: #0066cc; padding: 2px 6px; border-radius: 3px;">${Utils.escapeHtml(nonMvc)}</span></div>`;
+            }
+            if (combo.operationFootnote) {
+                html += `<div style="font-size: 12px; color: #555; margin-bottom: 4px; line-height: 1.45;">${Utils.escapeHtml(combo.operationFootnote)}</div>`;
+            }
+            if (combo.componentOperationFootnote) {
+                html += `<div style="font-size: 12px; color: #555; margin-bottom: 6px; line-height: 1.45;">${Utils.escapeHtml(combo.componentOperationFootnote)}</div>`;
+            }
+            const cats = combo.catalogObjects || [];
+            if (cats.length > 0) {
+                html += `<div class="labor-optional-parts-wrap">`;
+                html += `<div class="labor-optional-parts-heading">Catalog objects (${cats.length})</div>`;
+                html += `<div class="labor-optional-parts" role="list">`;
+                cats.forEach((p) => {
+                    const cid = p.catalogObjectID != null ? String(p.catalogObjectID) : '';
+                    html += `<div class="labor-optional-part-row" role="listitem">`;
+                    html += `<span class="labor-optional-part-name">${Utils.escapeHtml(p.catalogObjectName || '—')}</span>`;
+                    if (cid) {
+                        html += `<span class="labor-optional-part-id" title="Catalog object ID">ID ${Utils.escapeHtml(cid)}</span>`;
+                    }
+                    html += `</div>`;
+                });
+                html += `</div></div>`;
+            }
+            html += `</div>`;
+        });
+        html += `</div>`;
+        return html;
+    };
+    
     const renderLaborOperations = (operations, provider) => {
         const listEl = document.getElementById('laborOperationsList');
         const countEl = document.getElementById('laborOperationsCount');
@@ -2015,7 +2060,11 @@ const UI = (() => {
                 html += `</div></div>`;
             }
             
-            html += motorOptionalOperationsHtml(item.optionalOperations);
+            if (Array.isArray(item.optionalOperations) && item.optionalOperations.length) {
+                html += motorOptionalOperationsHtml(item.optionalOperations);
+            } else if (Array.isArray(item.combinationOperations) && item.combinationOperations.length) {
+                html += mitchellCombinationOperationsHtml(item.combinationOperations);
+            }
             
             html += `</td></tr>`;
         });
