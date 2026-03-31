@@ -1691,6 +1691,48 @@ const UI = (() => {
         Utils.setDisplay('laborContent', 'none');
     };
     
+    const motorOptionalOperationsHtml = (optionalOps) => {
+        if (!optionalOps || optionalOps.length === 0) return '';
+        let html = `<div style="margin-top: 15px;">`;
+        html += `<h5 style="margin: 0 0 10px 0; color: #333;">Optional additional operations</h5>`;
+        optionalOps.forEach((optOp) => {
+            const optHours = optOp.operationEffort?.baseEstWorkTime ?? '0';
+            const optPos = optOp.position?.position;
+            const addDesc = optOp.baseAdditionalDesc?.description;
+            html += `<div style="background: white; padding: 12px; border-radius: 4px; border-left: 3px solid #6c757d; margin-bottom: 10px;">`;
+            html += `<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; margin-bottom: 6px;">`;
+            html += `<span style="font-weight: 600; color: #333;">${Utils.escapeHtml(optOp.literalName || '-')}</span>`;
+            html += `<span style="font-size: 12px; color: #667eea;">ID ${optOp.operationID}</span>`;
+            html += `<span style="font-size: 12px; color: #666;">${Utils.escapeHtml(optOp.description || '')}</span>`;
+            html += `<span style="margin-left: auto; font-weight: 600; color: #28a745;">${Utils.escapeHtml(String(optHours))} hrs</span>`;
+            html += `</div>`;
+            if (optPos) {
+                html += `<div style="font-size: 12px; color: #666; margin-bottom: 4px;">Position: <span style="background: #e7f3ff; color: #0066cc; padding: 2px 6px; border-radius: 3px;">${Utils.escapeHtml(optPos)}</span></div>`;
+            }
+            if (addDesc) {
+                html += `<div style="font-size: 12px; color: #666; margin-bottom: 6px;">${Utils.escapeHtml(addDesc)}</div>`;
+            }
+            if (optOp.parts && optOp.parts.length > 0) {
+                html += `<div class="labor-optional-parts-wrap">`;
+                html += `<div class="labor-optional-parts-heading">Parts (${optOp.parts.length})</div>`;
+                html += `<div class="labor-optional-parts" role="list">`;
+                optOp.parts.forEach((p) => {
+                    const pid = p.partTerminologyID != null ? String(p.partTerminologyID) : '';
+                    html += `<div class="labor-optional-part-row" role="listitem">`;
+                    html += `<span class="labor-optional-part-name">${Utils.escapeHtml(p.partTerminologyName || '—')}</span>`;
+                    if (pid) {
+                        html += `<span class="labor-optional-part-id" title="Part terminology ID">ID ${Utils.escapeHtml(pid)}</span>`;
+                    }
+                    html += `</div>`;
+                });
+                html += `</div></div>`;
+            }
+            html += `</div>`;
+        });
+        html += `</div>`;
+        return html;
+    };
+    
     const renderLaborOperations = (operations, provider) => {
         const listEl = document.getElementById('laborOperationsList');
         const countEl = document.getElementById('laborOperationsCount');
@@ -1721,14 +1763,25 @@ const UI = (() => {
                     literalName: op.literalName,
                     positions: [],
                     skillName: item.requiredSkill?.name || 'N/A',
-                    skillDesc: item.requiredSkill?.description || ''
+                    skillDesc: item.requiredSkill?.description || '',
+                    optionalOps: [],
+                    optionalSeenKeys: new Set()
                 });
             }
-            operationMap.get(op.operationID).positions.push({
+            const opEntry = operationMap.get(op.operationID);
+            opEntry.positions.push({
                 position: op.position?.position || 'N/A',
                 positionID: op.position?.positionID || 0,
                 parts: op.parts || [],
                 effort: item.operationEffort || {}
+            });
+            const optionalList = item.optionalOperations || [];
+            optionalList.forEach((optOp) => {
+                const optPosId = optOp.position?.positionID ?? optOp.position?.position ?? '';
+                const dedupeKey = `${optOp.operationID}-${optPosId}`;
+                if (opEntry.optionalSeenKeys.has(dedupeKey)) return;
+                opEntry.optionalSeenKeys.add(dedupeKey);
+                opEntry.optionalOps.push(optOp);
             });
         });
         
@@ -1799,6 +1852,8 @@ const UI = (() => {
             uniqueParts.forEach((part) => partHtml += `<div style="padding: 4px 0; font-size: 13px;">• ${Utils.escapeHtml(part.partTerminologyName)}</div>`);
             html += partHtml || '<span style="color: #6c757d; font-size: 13px;">No parts associated</span>';
             html += `</div>`;
+            
+            html += motorOptionalOperationsHtml(opData.optionalOps);
             
             html += `</td></tr>`;
         });
@@ -1959,6 +2014,8 @@ const UI = (() => {
                 });
                 html += `</div></div>`;
             }
+            
+            html += motorOptionalOperationsHtml(item.optionalOperations);
             
             html += `</td></tr>`;
         });

@@ -998,6 +998,61 @@ body {
     font-size: 0.95em;
 }
 
+/* Optional labor operation — parts list (scrollable, one row per part) */
+.labor-optional-parts-wrap {
+    margin-top: 10px;
+}
+
+.labor-optional-parts-heading {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 6px;
+}
+
+.labor-optional-parts {
+    max-height: 240px;
+    overflow-y: auto;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    background: #f8f9fa;
+}
+
+.labor-optional-part-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.35;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.labor-optional-part-row:last-child {
+    border-bottom: none;
+}
+
+.labor-optional-part-row:nth-child(even) {
+    background: rgba(255, 255, 255, 0.65);
+}
+
+.labor-optional-part-name {
+    color: #212529;
+    flex: 1;
+    min-width: 0;
+}
+
+.labor-optional-part-id {
+    font-size: 11px;
+    color: #868e96;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
 .labor-time-box {
     background: white;
     padding: 12px;
